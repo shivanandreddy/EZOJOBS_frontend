@@ -4,6 +4,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import Dashboard from "./components/Dashboard";
 import Login from "./pages/auth/Login";
+import CreateJob from "./pages/jobs/CreateJob";
+import ManageJobs from "./pages/jobs/ManageJobs";
+import DraftJobs from "./pages/jobs/DraftJobs";
+import ViewJob from "./pages/jobs/ViewJob";
+import Test from "./components/Test";
 
 export default function App() {
   return (
@@ -21,6 +26,17 @@ export default function App() {
           >
             <Route index element={<Navigate to="/ezohr/home" replace />} />
             <Route path="home" element={<Dashboard />} />
+            
+              {/* Jobs */}
+              <Route path="jobs/create" element={<CreateJob />} />
+
+              <Route path="jobs/manage" element={<ManageJobs />} />
+
+              <Route path="jobs/drafts" element={<DraftJobs />} />
+
+              <Route path="/ezohr/jobs/:id" element={<ViewJob />} />
+              <Route path="/ezohr/test" element={<Test />} />
+
           </Route>
 
 
