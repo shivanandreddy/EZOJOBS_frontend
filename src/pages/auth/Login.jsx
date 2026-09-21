@@ -1,7 +1,7 @@
 import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
 import { UserContext } from '../../context/UserContext'; // Adjust path to your UserContext file
 
 const Login = () => {
@@ -33,9 +33,8 @@ const Login = () => {
 
       if (token) {
         // Pass token and user data to your UserContext handler 
-        // (Your UserContext should handle saving to localStorage and updating global state)
         login(token, user || { email: formData.email });
-        navigate('/ezohr');
+        navigate('/ezojobs');
       }
     } catch (err) {
       const errorMessage =
@@ -158,7 +157,7 @@ const Login = () => {
           <p className="mt-8 text-center text-xs text-gray-500 dark:text-slate-500">
             Don't have an account?{' '}
             <Link
-              to="/ezohr/register/"
+              to="/ezojobs/register/"
               className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 transition ml-1"
             >
               Register
@@ -183,8 +182,8 @@ const Login = () => {
       {/* Right Section: Image Hero */}
       <div className="hidden lg:relative lg:flex lg:w-1/2 overflow-hidden bg-slate-900">
         <img
-          src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1600"
-          alt="Modern Office Background"
+          src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1600"
+          alt="Recruitment and Hiring Collaboration"
           className="absolute inset-0 h-full w-full object-cover opacity-40 transition-transform duration-700 hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
@@ -192,13 +191,13 @@ const Login = () => {
         <div className="relative z-10 flex flex-col justify-end p-16 text-white">
           <div className="rounded-2xl border border-white/10 bg-white/10 p-8 backdrop-blur-md shadow-2xl">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-300">
-              <ShieldCheck size={14} /> Enterprise HR Solution
+              <Sparkles size={14} /> Modern Recruitment Platform
             </div>
-            <h2 className="text-2xl font-bold sm:text-3xl">
-              Streamline your HR workflows seamlessly.
+            <h2 className="text-3xl  sm:text-3xl text-white">
+              Your Recruitment and Hiring Power House
             </h2>
             <p className="mt-2 text-sm text-slate-300">
-              Manage workforce productivity, track projects, and generate comprehensive metrics all within the unified Ezo Jobs portal.
+              Manage candidate pipelines, organize interview schedules, track open positions, and collaborate seamlessly across your hiring teams.
             </p>
           </div>
         </div>
