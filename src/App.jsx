@@ -1,17 +1,20 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { UserProvider } from "./context/UserContext";
+import Login from "./pages/auth/Login";
 
-function App() {
-  const [count, setCount] = useState(0)
+
+export default function App() {
 
   return (
-   <>
-   Shivanand Reddy
-   </>
+  <UserProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/ezohr" element={<Navigate to="/ezohr/dashboard" replace />} />
+        <Route path="/ezohr/dashboard" element={<h1>Dashboard</h1>} />
+      </Routes>
+    </BrowserRouter>
+    </UserProvider>
   )
 }
 
-export default App
