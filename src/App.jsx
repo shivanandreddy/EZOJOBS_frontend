@@ -1,24 +1,36 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import { UserProvider } from "./context/UserContext";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+
 import Dashboard from "./components/Dashboard";
 import Login from "./pages/auth/Login";
+
 import CreateJob from "./pages/jobs/CreateJob";
 import ManageJobs from "./pages/jobs/ManageJobs";
 import DraftJobs from "./pages/jobs/DraftJobs";
 import ViewJob from "./pages/jobs/ViewJob";
+
 import Test from "./components/Test";
 import GetCandiates from "./pages/candiates/GetCandiates";
-import Settings from "./pages/settings/Settings"
+
+import Settings from "./pages/settings/Settings";
 import Help from "./pages/help/Help";
+
+import NotFound from "./pages/404/NotFound";
 
 export default function App() {
   return (
     <UserProvider>
       <BrowserRouter>
         <Routes>
+
+          {/* Login */}
           <Route path="/" element={<Login />} />
+
+          {/* Protected EZOHR Routes */}
           <Route
             path="/ezohr"
             element={
@@ -27,28 +39,44 @@ export default function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Navigate to="/ezohr/home" replace />} />
+
+            {/* Default */}
+            <Route
+              index
+              element={<Navigate to="/ezohr/home" replace />}
+            />
+
+            {/* Dashboard */}
             <Route path="home" element={<Dashboard />} />
-            
-              {/* Jobs */}
-              <Route path="jobs/create" element={<CreateJob />} />
 
-              <Route path="jobs/manage" element={<ManageJobs />} />
+            {/* Jobs */}
+            <Route path="jobs/create" element={<CreateJob />} />
+            <Route path="jobs/manage" element={<ManageJobs />} />
+            <Route path="jobs/drafts" element={<DraftJobs />} />
+            <Route path="jobs/:id" element={<ViewJob />} />
 
-              <Route path="jobs/drafts" element={<DraftJobs />} />
+            {/* Candidates */}
+            <Route
+              path="candiates"
+              element={<GetCandiates />}
+            />
 
-              <Route path="/ezohr/jobs/:id" element={<ViewJob />} />
+            {/* Test */}
+            <Route path="test" element={<Test />} />
 
-              <Route path="/ezohr/candiates" element={<GetCandiates />} />
-              <Route path="/ezohr/test" element={<Test />} />
-              {/* Settings */}
-              <Route path="settings" element={<Settings />} />
+            {/* Settings */}
+            <Route path="settings" element={<Settings />} />
 
-              {/* Help */}
-              <Route path="help" element={<Help />} />
-              
+            {/* Help */}
+            <Route path="help" element={<Help />} />
+
+            {/* EZOHR 404 */}
+            <Route path="*" element={<NotFound />} />
+
           </Route>
 
+          {/* Global 404 */}
+          <Route path="*" element={<NotFound />} />
 
         </Routes>
       </BrowserRouter>

@@ -1,25 +1,27 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Home,
-  FolderKanban,
   ListTodo,
-  BarChart3,
-  Users,
   Settings,
   HelpCircle,
   ChevronDown,
   PersonStanding,
+  CalendarCheck,
+  UserRound,
+  BriefcaseBusiness,
+  MessageSquareText,
+  ThumbsUp,
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
 
-  // Track open dropdown menus by label
+  // Track open dropdown menus by consistent keys matching the toggle handlers
   const [openSubmenus, setOpenSubmenus] = useState({
-    Projects: true, // Default open for demonstration
-    Issues: false,
-    Reports: false,
+    JobsAndRecruitment: true, // Set true if you want it open by default
+    Projects: false,          // Used for Candidate Management dropdown
+    Interviewer: false,       // Used for Interviewer dropdown
   });
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -94,7 +96,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           <div className="mb-1">
             <button
               type="button"
-              onClick={() => toggleSubmenu('Issues')}
+              onClick={() => toggleSubmenu('JobsAndRecruitment')}
               className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800/60 transition"
             >
               <div className="flex items-center gap-3">
@@ -104,13 +106,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               <ChevronDown
                 size={16}
                 className={`text-gray-400 dark:text-slate-500 transition-transform duration-200 ${
-                  openSubmenus['Issues'] ? 'rotate-180' : ''
+                  openSubmenus['JobsAndRecruitment'] ? 'rotate-180' : ''
                 }`}
               />
             </button>
 
-            {openSubmenus['Issues'] && (
-              <div className="ml-7 mt-1 space-y-1 border-l  border-blue-500 dark:border-slate-800 pl-2">
+            {openSubmenus['JobsAndRecruitment'] && (
+              <div className="ml-7 mt-1 space-y-1 border-l border-blue-500 dark:border-slate-800 pl-2">
                 <Link
                   to="/ezohr/jobs/create"
                   onClick={handleLinkClick}
@@ -144,24 +146,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 >
                   Manage Jobs
                 </Link>
-                {/* <Link
-                  to="/ezohr/jobs/view"
-                  onClick={handleLinkClick}
-                  className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    isActive('/jobs/view')
-                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-                  }`}
-                >
-                  View Jobs
-                </Link> */}
-                
-                
               </div>
             )}
           </div>
 
-          {/* 3. Projects / Students (With Submenu) */}
+          {/* 3. Candidate Management */}
           <div className="mb-1">
             <button
               type="button"
@@ -170,7 +159,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             >
               <div className="flex items-center gap-3">
                 <PersonStanding size={18} />
-                <span>Candiate Management</span>
+                <span>Candidate Management</span>
               </div>
               <ChevronDown
                 size={16}
@@ -183,7 +172,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             {openSubmenus['Projects'] && (
               <div className="ml-7 mt-1 space-y-1 border-l border-blue-500 dark:border-slate-800 pl-2">
                 <Link
-                  to="/ezohr/candiates"
+                  to="/ezohr/candidates"
                   onClick={handleLinkClick}
                   className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
                     isActive('/ezohr/candidates')
@@ -191,163 +180,137 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  All Candiates
+                  All Candidates
                 </Link>
-                {/* <Link
-                  to="/projects/dev"
-                  onClick={handleLinkClick}
-                  className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    isActive('/projects/dev')
-                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-                  }`}
-                >
-                  Software Development
-                </Link>
-                <Link
-                  to="/projects/design"
-                  onClick={handleLinkClick}
-                  className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    isActive('/projects/design')
-                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-                  }`}
-                >
-                  Design System
-                </Link> */}
               </div>
             )}
           </div>
 
-          
-
-          {/* 4. Reports (With Submenu) */}
-          {/* <div className="mb-1">
+          {/* 4. Interviewer */}
+          <div className="mb-1">
             <button
               type="button"
-              onClick={() => toggleSubmenu('Reports')}
+              onClick={() => toggleSubmenu('Interviewer')}
               className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800/60 transition"
             >
               <div className="flex items-center gap-3">
-                <BarChart3 size={18} />
-                <span>Reports</span>
+                <CalendarCheck size={18} />
+                <span>Interviewer</span>
               </div>
+
               <ChevronDown
                 size={16}
                 className={`text-gray-400 dark:text-slate-500 transition-transform duration-200 ${
-                  openSubmenus['Reports'] ? 'rotate-180' : ''
+                  openSubmenus['Interviewer'] ? 'rotate-180' : ''
                 }`}
               />
             </button>
 
-            {openSubmenus['Reports'] && (
-              <div className="ml-7 mt-1 space-y-1 border-l border-gray-200 dark:border-slate-800 pl-2">
+            {openSubmenus['Interviewer'] && (
+              <div className="ml-7 mt-1 space-y-1 border-l border-blue-500 dark:border-slate-800 pl-2">
+                {/* Assigned Interviews */}
                 <Link
-                  to="/reports/burndown"
+                  to="/ezohr/interviewer/interviews"
                   onClick={handleLinkClick}
-                  className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    isActive('/reports/burndown')
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                    isActive('/ezohr/interviewer/interviews')
                       ? 'text-blue-600 dark:text-blue-400 font-semibold'
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  Burndown Chart
+                  <CalendarCheck size={15} />
+                  View Assigned Interviews
                 </Link>
+
+                {/* Candidate Profile */}
                 <Link
-                  to="/reports/velocity"
+                  to="/ezohr/interviewer/candidate-profile"
                   onClick={handleLinkClick}
-                  className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    isActive('/reports/velocity')
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                    isActive('/ezohr/interviewer/candidate-profile')
                       ? 'text-blue-600 dark:text-blue-400 font-semibold'
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  Velocity Tracking
+                  <UserRound size={15} />
+                  View Candidate Profile
+                </Link>
+
+                {/* Job Details */}
+                <Link
+                  to="/ezohr/interviewer/job-details"
+                  onClick={handleLinkClick}
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                    isActive('/ezohr/interviewer/job-details')
+                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <BriefcaseBusiness size={15} />
+                  View Job Details
+                </Link>
+
+                {/* Submit Feedback */}
+                <Link
+                  to="/ezohr/interviewer/feedback"
+                  onClick={handleLinkClick}
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                    isActive('/ezohr/interviewer/feedback')
+                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <MessageSquareText size={15} />
+                  Submit Feedback
+                </Link>
+
+                {/* Recommendation */}
+                <Link
+                  to="/ezohr/interviewer/recommendation"
+                  onClick={handleLinkClick}
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                    isActive('/ezohr/interviewer/recommendation')
+                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <ThumbsUp size={15} />
+                  Give Recommendation
                 </Link>
               </div>
             )}
-          </div> */}
-
-          {/* 5. Teams */}
-          {/* <div className="mb-1">
-            <Link
-              to="/teams"
-              onClick={handleLinkClick}
-              className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition ${
-                isActive('/teams')
-                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400'
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Users size={18} />
-              <span>Teams</span>
-            </Link>
-          </div> */}
-
-          {/* Projects Category Links */}
-          {/* <div className="mt-6">
-            <p className="mb-2 px-3 text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">
-              Your Projects
-            </p>
-
-            <Link
-              to="/projects/infrastructure"
-              onClick={handleLinkClick}
-              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800/60 transition"
-            >
-              <span className="h-5 w-5 rounded bg-purple-500 shrink-0" />
-              Infrastructure
-            </Link>
-
-            <Link
-              to="/projects/service-desk"
-              onClick={handleLinkClick}
-              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800/60 transition"
-            >
-              <span className="h-5 w-5 rounded bg-green-500 shrink-0" />
-              Service Desk
-            </Link>
-
-            <Link
-              to="/projects/monitoring"
-              onClick={handleLinkClick}
-              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800/60 transition"
-            >
-              <span className="h-5 w-5 rounded bg-orange-500 shrink-0" />
-              Monitoring
-            </Link>
-          </div> */}
+          </div>
         </nav>
 
         {/* Bottom */}
         <div className="border-t border-gray-200 dark:border-slate-800 p-3">
           <Link
-  to="/ezohr/settings"
-  onClick={handleLinkClick}
-  className={`mb-1 flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition ${
-    isActive('/ezohr/settings')
-      ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-  }`}
->
-  <Settings size={18} />
-  Settings
-</Link>
+            to="/ezohr/settings"
+            onClick={handleLinkClick}
+            className={`mb-1 flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition ${
+              isActive('/ezohr/settings')
+                ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            <Settings size={18} />
+            Settings
+          </Link>
 
           <Link
             to="/ezohr/help"
             onClick={handleLinkClick}
-           className={`mb-1 flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition ${
-    isActive('/ezohr/help')
-      ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-  }`}
->
+            className={`mb-1 flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition ${
+              isActive('/ezohr/help')
+                ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
             <HelpCircle size={18} />
             Help
           </Link>
 
-          {/* User */}
+          {/* User Profile Footer */}
           <div className="mt-3 flex items-center gap-3 rounded-md bg-blue-600 dark:bg-slate-800/50 border border-transparent dark:border-slate-800 p-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-blue-500 text-sm font-semibold text-blue-600 dark:text-white shrink-0">
               <p className="capitalize">{user?.name ? user.name.charAt(0) : 'U'}</p>

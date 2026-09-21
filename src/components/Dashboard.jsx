@@ -1,4 +1,12 @@
 import React from "react";
+import { 
+  Briefcase, 
+  Calendar, 
+  Users, 
+  Sparkles, 
+  Plus, 
+  ArrowUpRight 
+} from "lucide-react";
 
 const Dashboard = () => {
   const stats = [
@@ -7,32 +15,32 @@ const Dashboard = () => {
       value: "24",
       change: "+12%",
       changeText: "from last month",
-      icon: "💼",
-      color: "bg-blue-100 text-blue-600",
+      icon: <Briefcase size={22} />,
+      color: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
     },
     {
       title: "Interviews Scheduled",
       value: "18",
       change: "+8%",
       changeText: "from last week",
-      icon: "📅",
-      color: "bg-purple-100 text-purple-600",
+      icon: <Calendar size={22} />,
+      color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
     },
     {
       title: "Active Candidates",
       value: "156",
       change: "+18%",
       changeText: "from last month",
-      icon: "👥",
-      color: "bg-green-100 text-green-600",
+      icon: <Users size={22} />,
+      color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
     },
     {
       title: "New Candidates",
       value: "42",
       change: "+24%",
       changeText: "this month",
-      icon: "✨",
-      color: "bg-orange-100 text-orange-600",
+      icon: <Sparkles size={22} />,
+      color: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
     },
   ];
 
@@ -111,18 +119,19 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50  bg-transparent">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Welcome back! Here's what's happening with your recruitment.
           </p>
         </div>
 
-        <button className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700">
-          + Post New Job
+        <button className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 shadow-sm">
+          <Plus size={16} />
+          <span>Post New Job</span>
         </button>
       </div>
 
@@ -139,18 +148,19 @@ const Dashboard = () => {
                   {stat.title}
                 </p>
 
-                <h2 className="mt-2 text-3xl font-bold">{stat.value}</h2>
+                <h2 className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</h2>
               </div>
 
               <div
-                className={`flex h-11 w-11 items-center justify-center rounded-lg text-xl ${stat.color}`}
+                className={`flex h-11 w-11 items-center justify-center rounded-lg ${stat.color}`}
               >
                 {stat.icon}
               </div>
             </div>
 
             <div className="mt-4 flex items-center gap-2 text-sm">
-              <span className="font-semibold text-green-600">
+              <span className="font-semibold text-green-600 flex items-center gap-0.5">
+                <ArrowUpRight size={14} />
                 {stat.change}
               </span>
               <span className="text-gray-500 dark:text-gray-400">
@@ -167,13 +177,13 @@ const Dashboard = () => {
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm xl:col-span-2 dark:border-gray-800 dark:bg-gray-900">
           <div className="flex items-center justify-between border-b border-gray-200 p-5 dark:border-gray-800">
             <div>
-              <h2 className="font-semibold">Current Job Openings</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-white">Current Job Openings</h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Recently posted positions
               </p>
             </div>
 
-            <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
+            <button className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">
               View All
             </button>
           </div>
@@ -197,14 +207,14 @@ const Dashboard = () => {
                     className="transition hover:bg-gray-50 dark:hover:bg-gray-800/50"
                   >
                     <td className="px-5 py-4">
-                      <p className="font-medium">{job.title}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{job.title}</p>
                     </td>
 
                     <td className="px-5 py-4 text-gray-500 dark:text-gray-400">
                       {job.department}
                     </td>
 
-                    <td className="px-5 py-4 font-medium">
+                    <td className="px-5 py-4 font-medium text-gray-900 dark:text-white">
                       {job.applicants}
                     </td>
 
@@ -227,7 +237,7 @@ const Dashboard = () => {
         {/* Candidate Pipeline */}
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-6">
-            <h2 className="font-semibold">Candidate Pipeline</h2>
+            <h2 className="font-semibold text-gray-900 dark:text-white">Candidate Pipeline</h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Candidate recruitment stages
             </p>
@@ -240,7 +250,7 @@ const Dashboard = () => {
                   <span className="text-gray-600 dark:text-gray-300">
                     {item.name}
                   </span>
-                  <span className="font-semibold">{item.count}</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">{item.count}</span>
                 </div>
 
                 <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
@@ -254,8 +264,6 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-
-          
         </div>
       </div>
 
@@ -263,13 +271,13 @@ const Dashboard = () => {
       <div className="mt-6 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-center justify-between border-b border-gray-200 p-5 dark:border-gray-800">
           <div>
-            <h2 className="font-semibold">Upcoming Interviews</h2>
+            <h2 className="font-semibold text-gray-900 dark:text-white">Upcoming Interviews</h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Your scheduled candidate interviews
             </p>
           </div>
 
-          <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
+          <button className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">
             View Calendar
           </button>
         </div>
@@ -285,7 +293,7 @@ const Dashboard = () => {
               </div>
 
               <div className="min-w-0 flex-1">
-                <h3 className="truncate text-sm font-semibold">
+                <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                   {interview.candidate}
                 </h3>
 
@@ -299,7 +307,7 @@ const Dashboard = () => {
               </div>
 
               <div className="text-right">
-                <p className="text-sm font-medium">{interview.date}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{interview.date}</p>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {interview.time}
                 </p>
@@ -311,7 +319,7 @@ const Dashboard = () => {
 
       {/* Bottom Summary */}
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 p-5 text-white">
+        <div className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 p-5 text-white shadow-sm">
           <p className="text-sm text-blue-100">Total Applications</p>
           <h3 className="mt-2 text-3xl font-bold">328</h3>
           <p className="mt-2 text-sm text-blue-100">
@@ -319,7 +327,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 p-5 text-white">
+        <div className="rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 p-5 text-white shadow-sm">
           <p className="text-sm text-purple-100">Offers Sent</p>
           <h3 className="mt-2 text-3xl font-bold">18</h3>
           <p className="mt-2 text-sm text-purple-100">
@@ -327,7 +335,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="rounded-xl bg-gradient-to-r from-green-600 to-green-500 p-5 text-white">
+        <div className="rounded-xl bg-gradient-to-r from-green-600 to-green-500 p-5 text-white shadow-sm">
           <p className="text-sm text-green-100">Successful Hires</p>
           <h3 className="mt-2 text-3xl font-bold">12</h3>
           <p className="mt-2 text-sm text-green-100">
