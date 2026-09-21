@@ -9,6 +9,9 @@ import ManageJobs from "./pages/jobs/ManageJobs";
 import DraftJobs from "./pages/jobs/DraftJobs";
 import ViewJob from "./pages/jobs/ViewJob";
 import Test from "./components/Test";
+import GetCandiates from "./pages/candiates/GetCandiates";
+import Settings from "./pages/settings/Settings"
+import Help from "./pages/help/Help";
 
 export default function App() {
   return (
@@ -35,8 +38,15 @@ export default function App() {
               <Route path="jobs/drafts" element={<DraftJobs />} />
 
               <Route path="/ezohr/jobs/:id" element={<ViewJob />} />
-              <Route path="/ezohr/test" element={<Test />} />
 
+              <Route path="/ezohr/candiates" element={<GetCandiates />} />
+              <Route path="/ezohr/test" element={<Test />} />
+              {/* Settings */}
+              <Route path="settings" element={<Settings />} />
+
+              {/* Help */}
+              <Route path="help" element={<Help />} />
+              
           </Route>
 
 
