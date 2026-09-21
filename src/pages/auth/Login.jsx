@@ -59,7 +59,7 @@ const Login = () => {
             E
           </div>
           <span className="text-xl font-bold tracking-tight text-gray-800 dark:text-slate-100">
-            EZOHR
+            EZO Jobs
           </span>
         </div>
 
@@ -168,7 +168,7 @@ const Login = () => {
 
         {/* Footer */}
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-slate-500">
-          <span>&copy; {new Date().getFullYear()} EZOHR Inc.</span>
+          <span>&copy; {new Date().getFullYear()} EZO Jobs Inc.</span>
           <div className="flex gap-4">
             <a href="#" className="hover:text-gray-700 dark:hover:text-slate-300 transition">
               Privacy
@@ -198,7 +198,7 @@ const Login = () => {
               Streamline your HR workflows seamlessly.
             </h2>
             <p className="mt-2 text-sm text-slate-300">
-              Manage workforce productivity, track projects, and generate comprehensive metrics all within the unified EZOHR portal.
+              Manage workforce productivity, track projects, and generate comprehensive metrics all within the unified Ezo Jobs portal.
             </p>
           </div>
         </div>
