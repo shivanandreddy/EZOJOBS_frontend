@@ -19,6 +19,10 @@ import GetCandiates from "./pages/candiates/GetCandiates";
 import CandiateLogin from "./pages/auth/CanidateLogin";
 import CandiateProtectedRoute from "./components/CandiateProtectedRoute";
 import CandiateDashboard from "./pages/candiates/CandiateDashboard";
+import CandiateLayout from "./pages/candiates/CandiateLayout"
+import CandiateProfile from "./pages/candiates/CandiateProfile";
+import CandiateJobs from "./pages/candiates/CandiateJobs";
+import CandiateApplications from "./pages/candiates/CandiateApplications";
 
 import Settings from "./pages/settings/Settings";
 import Help from "./pages/help/Help";
@@ -86,14 +90,7 @@ export default function App() {
           {/* Global 404 */}
           <Route path="*" element={<Development />} />
 
-          <Route
-              path="/ezohr/candiate/dashboard"
-              element={
-                <CandiateProtectedRoute>
-                  <CandiateDashboard />
-                </CandiateProtectedRoute>
-              }
-            />
+         
 
              {/* Candidate View Job after Google Login */}
             <Route
@@ -104,6 +101,14 @@ export default function App() {
                 </CandiateProtectedRoute>
               }
             />
+
+            {/* Layout Route with Nested Child Routes */}
+        <Route path="/ezohr/candiate" element={ <CandiateProtectedRoute><CandiateLayout /></CandiateProtectedRoute>}>
+          <Route path="dashboard" element={<CandiateDashboard />} />
+            <Route path="jobs" element={<CandiateJobs />} />
+          <Route path="applications" element={<CandiateApplications />} />
+          <Route path="profile" element={<CandiateProfile />} />
+        </Route>
 
         </Routes>
       </BrowserRouter>
