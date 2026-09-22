@@ -20,6 +20,7 @@ import Settings from "./pages/settings/Settings";
 import Help from "./pages/help/Help";
 
 import NotFound from "./pages/404/NotFound";
+import Development from "./pages/404/Development";
 
 export default function App() {
   return (
@@ -71,12 +72,12 @@ export default function App() {
             <Route path="help" element={<Help />} />
 
             {/* EZOHR 404 */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<Development />} />
 
           </Route>
 
           {/* Global 404 */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<Development />} />
 
         </Routes>
       </BrowserRouter>
