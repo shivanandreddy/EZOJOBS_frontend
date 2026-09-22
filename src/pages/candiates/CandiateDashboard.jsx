@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Info } from "lucide-react";
 
-const CandidateDashboard = () => {
+const CandiateDashboard = () => {
   const navigate = useNavigate();
   const { candiate, logout } = useAuth();
 
@@ -484,4 +484,4 @@ const Application = ({ title, company, status, statusStyle, darkMode }) => {
   );
 };
 
-export default CandidateDashboard;
+export default CandiateDashboard;

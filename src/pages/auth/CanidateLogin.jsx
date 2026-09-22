@@ -30,7 +30,7 @@ const CandiateLogin = () => {
 
       // Send Google credential to your backend
       const response = await fetch(
-        "http://localhost:3000/api/candiates",
+        `${import.meta.env.VITE_API_URL}/candiates`,
         {
           method: "POST",
           headers: {

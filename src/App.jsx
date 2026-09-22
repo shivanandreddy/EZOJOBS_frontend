@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import { UserProvider } from "./context/UserContext";
+import { AuthProvider } from "./context/AuthContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
@@ -15,9 +16,13 @@ import ViewJob from "./pages/jobs/ViewJob";
 
 import Test from "./components/Test";
 import GetCandiates from "./pages/candiates/GetCandiates";
+import CandiateLogin from "./pages/auth/CanidateLogin";
+import CandiateProtectedRoute from "./components/CandiateProtectedRoute";
+import CandiateDashboard from "./pages/candiates/CandiateDashboard";
 
 import Settings from "./pages/settings/Settings";
 import Help from "./pages/help/Help";
+
 
 import NotFound from "./pages/404/NotFound";
 import Development from "./pages/404/Development";
@@ -25,11 +30,13 @@ import Development from "./pages/404/Development";
 export default function App() {
   return (
     <UserProvider>
+      <AuthProvider>
       <BrowserRouter>
         <Routes>
 
           {/* Login */}
           <Route path="/" element={<Login />} />
+          <Route path="/ezohr/candiate/login" element={<CandiateLogin />} />
 
           {/* Protected EZOHR Routes */}
           <Route
@@ -79,8 +86,28 @@ export default function App() {
           {/* Global 404 */}
           <Route path="*" element={<Development />} />
 
+          <Route
+              path="/ezohr/candiate/dashboard"
+              element={
+                <CandiateProtectedRoute>
+                  <CandiateDashboard />
+                </CandiateProtectedRoute>
+              }
+            />
+
+             {/* Candidate View Job after Google Login */}
+            <Route
+              path="/ezohr/candiate/jobs/:id"
+              element={
+                <CandiateProtectedRoute>
+                  <ViewJob />
+                </CandiateProtectedRoute>
+              }
+            />
+
         </Routes>
       </BrowserRouter>
+      </AuthProvider>
     </UserProvider>
   );
 }
