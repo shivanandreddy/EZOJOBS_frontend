@@ -34,7 +34,7 @@ const Login = () => {
       if (token) {
         // Pass token and user data to your UserContext handler 
         login(token, user || { email: formData.email });
-        navigate('/ezojobs');
+        navigate('ezohr/home');
       }
     } catch (err) {
       const errorMessage =
