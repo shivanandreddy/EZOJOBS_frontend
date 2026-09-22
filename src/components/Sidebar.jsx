@@ -218,7 +218,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  <CalendarCheck size={15} />
+                  
                   View Assigned Interviews
                 </Link>
 
@@ -232,7 +232,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  <UserRound size={15} />
+                  
                   View Candidate Profile
                 </Link>
 
@@ -246,7 +246,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  <BriefcaseBusiness size={15} />
+                  
                   View Job Details
                 </Link>
 
@@ -260,7 +260,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  <MessageSquareText size={15} />
+                  
                   Submit Feedback
                 </Link>
 
@@ -274,7 +274,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  <ThumbsUp size={15} />
+                  
                   Give Recommendation
                 </Link>
               </div>
