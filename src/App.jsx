@@ -23,6 +23,7 @@ import CandiateLayout from "./pages/candiates/CandiateLayout"
 import CandiateProfile from "./pages/candiates/CandiateProfile";
 import CandiateJobs from "./pages/candiates/CandiateJobs";
 import CandiateApplications from "./pages/candiates/CandiateApplications";
+import Profile from "./components/Profile";
 
 import Settings from "./pages/settings/Settings";
 import Help from "./pages/help/Help";
@@ -51,6 +52,7 @@ export default function App() {
               </ProtectedRoute>
             }
           >
+            <Route path="profile" element={<Profile />} />
 
             {/* Default */}
             <Route

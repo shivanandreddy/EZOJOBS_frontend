@@ -201,7 +201,7 @@ const Topbar = ({ sidebarOpen, setSidebarOpen, title, onLogout }) => {
               <button
                 onClick={() => {
                   setIsProfileOpen(false);
-                  navigate('/profile');
+                  navigate('/ezohr/profile');
                 }}
                 className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition"
               >
@@ -212,7 +212,7 @@ const Topbar = ({ sidebarOpen, setSidebarOpen, title, onLogout }) => {
               <button
                 onClick={() => {
                   setIsProfileOpen(false);
-                  navigate('/settings');
+                  navigate('/ezohr/settings');
                 }}
                 className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition"
               >
