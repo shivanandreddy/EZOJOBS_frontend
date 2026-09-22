@@ -5,7 +5,7 @@ export default function Development({
   title = "Page Under Development", 
   message = "We are working hard to bring you something amazing. Please check back soon!",
   showHomeButton = true,
-  onHomeClick = () => window.location.href = '/'
+  onHomeClick = () => window.location.href = '/ezohr/home'
 }) {
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">

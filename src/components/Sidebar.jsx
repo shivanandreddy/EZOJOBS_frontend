@@ -20,7 +20,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   // Track open dropdown menus by consistent keys matching the toggle handlers
   const [openSubmenus, setOpenSubmenus] = useState({
     JobsAndRecruitment: true, // Set true if you want it open by default
-    Projects: false,          // Used for Candidate Management dropdown
     Interviewer: false,       // Used for Interviewer dropdown
   });
 
@@ -150,43 +149,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             )}
           </div>
 
-          {/* 3. Candidate Management */}
-          <div className="mb-1">
-            <button
-              type="button"
-              onClick={() => toggleSubmenu('Projects')}
-              className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800/60 transition"
-            >
-              <div className="flex items-center gap-3">
-                <PersonStanding size={18} />
-                <span>Candidate Management</span>
-              </div>
-              <ChevronDown
-                size={16}
-                className={`text-gray-400 dark:text-slate-500 transition-transform duration-200 ${
-                  openSubmenus['Projects'] ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
+         
 
-            {openSubmenus['Projects'] && (
-              <div className="ml-7 mt-1 space-y-1 border-l border-blue-500 dark:border-slate-800 pl-2">
-                <Link
-                  to="/ezohr/candidates"
-                  onClick={handleLinkClick}
-                  className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    isActive('/ezohr/candidates')
-                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-                  }`}
-                >
-                  All Candidates
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* 4. Interviewer */}
+          {/* 3. Interviewer */}
           <div className="mb-1">
             <button
               type="button"

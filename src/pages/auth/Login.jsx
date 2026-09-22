@@ -193,8 +193,8 @@ const Login = () => {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-300">
               <Sparkles size={14} /> Modern Recruitment Platform
             </div>
-            <h2 className="text-3xl  sm:text-3xl text-white">
-              Your Recruitment and Hiring Power House
+            <h2 className="text-3xl text-bold sm:text-3xl text-white">
+              Your hiring workflow, fully supercharged.
             </h2>
             <p className="mt-2 text-sm text-slate-300">
               Manage candidate pipelines, organize interview schedules, track open positions, and collaborate seamlessly across your hiring teams.
