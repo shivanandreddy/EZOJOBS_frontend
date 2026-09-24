@@ -209,7 +209,7 @@ const CandidateJobs = () => {
                         : [b]
                     )
                     .filter(Boolean)
-                    .map((benefit) => (
+                    .map((benefit,idx) => (
                       <li
                         key={idx}
                         
