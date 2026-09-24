@@ -488,6 +488,32 @@ const ViewJob = ({ onBack }) => {
             </div>
           )}
 
+          {/* Required Skills */}
+        {job.skills && job.skills.length > 0 && (
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-3">
+              Required Skills
+            </h2>
+
+            <div className="flex flex-wrap gap-2">
+              {job.skills.map((skill, index) => {
+                const skillText = typeof skill === 'string' 
+                  ? skill.replace(/^"|"$/g, '') 
+                  : (skill.name || JSON.stringify(skill));
+                  
+                return (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-900"
+                  >
+                    {skillText}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Benefits */}
         {job.benefits &&
           job.benefits.length > 0 && (
