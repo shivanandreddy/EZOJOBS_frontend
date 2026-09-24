@@ -178,7 +178,6 @@ const CandidateJobs = () => {
               </ul>
             </div>
           )}
-          {console.log(job)}
 
           {job.requirements && (
             <div className="pt-1">
@@ -198,11 +197,11 @@ const CandidateJobs = () => {
           {job.benefits &&
             job.benefits.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold mb-3">
+                <h2 className="font-semibold mb-1">
                   Perks & Benefits
                 </h2>
 
-                <ul className="space-y-2">
+                <ul className={`list-disc pl-4 space-y-1 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
                   {job.benefits
                     .flatMap(b =>
                       typeof b === 'string'
@@ -210,10 +209,10 @@ const CandidateJobs = () => {
                         : [b]
                     )
                     .filter(Boolean)
-                    .map((benefit, index) => (
+                    .map((benefit) => (
                       <li
-                        key={index}
-                        className={`flex items-center gap-2 ${darkMode ? "text-gray-300" : "text-gray-600"}`}
+                        key={idx}
+                        
                       >
                         <span className="h-1.5 w-1.5 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0" />
                         <span>{String(benefit).trim()}</span>
