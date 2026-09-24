@@ -62,6 +62,7 @@ const ManageJobs = ({ onCreateJobClick, onViewJobClick }) => {
   const handleStatusUpdate = async (jobId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
+      // console.log(token)
       await axios.patch(
         `${import.meta.env.VITE_API_URL}/jobs/update/${jobId}/status`,
         { status: newStatus },

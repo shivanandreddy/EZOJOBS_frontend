@@ -18,7 +18,8 @@ import {
 import { useUser } from '../../context/UserContext';
 
 const CreateJob = ({ onBack, onSubmitSuccess }) => {
-  const { user } = useUser();
+  const { user,token } = useUser();
+  
 
   const [formData, setFormData] = useState({
     title: '',
@@ -96,7 +97,10 @@ const CreateJob = ({ onBack, onSubmitSuccess }) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/jobs`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}` 
+  },
         body: JSON.stringify(pendingPayload)
       });
 

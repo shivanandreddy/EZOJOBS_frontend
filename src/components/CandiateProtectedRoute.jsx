@@ -5,8 +5,6 @@ const CandiateProtectedRoute = ({ children }) => {
   const location = useLocation();
   const { token, loading } = useAuth(); // Destructure token and loading (if available)
 
-  console.log('Protected Route Token:', token);
-
   // 1. If still initializing/loading, render a loader or null to prevent premature redirect
   if (loading) {
     return <div>Loading...</div>; // Or your custom spinner component

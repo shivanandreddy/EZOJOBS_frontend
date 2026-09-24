@@ -145,6 +145,17 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 >
                   Manage Jobs
                 </Link>
+                <Link
+                  to="/ezohr/interview"
+                  onClick={handleLinkClick}
+                  className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                    isActive('/ezohr/interview')
+                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Schedule Interviews
+                </Link>
               </div>
             )}
           </div>
@@ -175,16 +186,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               <div className="ml-7 mt-1 space-y-1 border-l border-blue-500 dark:border-slate-800 pl-2">
                 {/* Assigned Interviews */}
                 <Link
-                  to="/ezohr/interviewer/interviews"
+                  to="/ezohr/interviews/manage"
                   onClick={handleLinkClick}
                   className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    isActive('/ezohr/interviewer/interviews')
+                    isActive('/ezohr/interviews/manage')
                       ? 'text-blue-600 dark:text-blue-400 font-semibold'
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
                   
-                  View Assigned Interviews
+                  Manage Assigned Interviews
                 </Link>
 
                 {/* Candidate Profile */}

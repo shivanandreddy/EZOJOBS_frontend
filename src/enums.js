@@ -1,6 +1,6 @@
 export const candiateGender = ["male", "female", "other"];
 export const candiateRole = ["student", "employee"];
-export const candiateEducationLevel = ["school", "intermediate", "graduation"];
+export const candiateEducationLevel = ["school", "intermediate", "graduation","masters","others"];
 export const candiateGraduation = [
   "B.Tech",
   "M.Tech",

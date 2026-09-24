@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { 
   FileEdit, 
@@ -22,16 +23,15 @@ const DraftJobs = ({ onEditDraftClick }) => {
 
   // Fetch jobs and filter strictly by status=Draft from the API response
   const fetchDrafts = async () => {
+    
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/jobs?status=Draft`);
       
-      // Handles both array responses and standard wrapper objects (e.g. response.data.data or response.data)
       const rawData = response.data?.data || response.data || [];
       const jobsList = Array.isArray(rawData) ? rawData : [];
 
-      // Filter specifically to ensure status matches 'Draft' (case-insensitive check just in case)
       const draftList = jobsList.filter(
         (job) => job.status && job.status === 'Draft'
       );
@@ -57,11 +57,19 @@ const DraftJobs = ({ onEditDraftClick }) => {
     (draft.department && draft.department.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // Publish Draft Handler (Updates status to Active)
+  // Publish Draft Handler (Updates status to Active using axios.patch)
   const handlePublish = async (id) => {
     try {
-      await axios.patch(`${import.meta.env.VITE_API_URL}/jobs/${id}/publish`, { status: 'Active' });
+      const token = localStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      // Sends a PATCH request to change the status to Active
+      await axios.patch(`${import.meta.env.VITE_API_URL}/jobs/update/${id}/status`, { 
+        status: 'Active' 
+      }, config);
+
+      // Remove the published draft from the local state list immediately
       setDrafts((prev) => prev.filter((d) => d._id !== id && d.jobId !== id));
+      
       alert('Draft successfully published as an active job listing!');
     } catch (err) {
       console.error('Failed to publish draft:', err);
@@ -84,7 +92,7 @@ const DraftJobs = ({ onEditDraftClick }) => {
   return (
     <div className="flex-1 flex flex-col h-full w-full gap-6 overflow-y-auto">
       
-      {/* Top Header & Search Toolbar (Background removed) */}
+      {/* Top Header & Search Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 text-blue-500 font-extrabold text-xl tracking-tight">
@@ -192,13 +200,14 @@ const DraftJobs = ({ onEditDraftClick }) => {
                 </div>
 
                 <div className="flex items-center gap-2 pt-1">
-                  <button
+                  <Link
+                    to={`/ezohr/jobs/edit/${draft._id || draft.jobId}`}
                     onClick={() => onEditDraftClick && onEditDraftClick(draft)}
                     className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#121c32] px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                   >
                     <Edit3 size={14} />
                     Edit
-                  </button>
+                  </Link>
                   <button
                     onClick={() => handlePublish(draft._id || draft.jobId)}
                     className="flex items-center justify-center gap-1.5 rounded-xl bg-green-500 hover:bg-green-600 px-3 py-2 text-xs font-semibold text-white transition shadow-sm"
