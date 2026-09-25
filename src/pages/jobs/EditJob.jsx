@@ -94,37 +94,86 @@ const EditJob = () => {
   };
 
   const handleConfirmUpdate = async () => {
-    setShowConfirmModal(false);
-    setSubmitting(true);
-    setSuccessMessage("");
+  setShowConfirmModal(false);
+  setSubmitting(true);
+  setSuccessMessage("");
+  setError("");
 
-    try {
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
+  try {
+    const token = localStorage.getItem("token");
 
-      const payload = {
-        ...formData,
-        responsibilities: formData.responsibilities.filter((item) => item.trim() !== ""),
-        requirements: formData.requirements.filter((item) => item.trim() !== ""),
-        benefits: formData.benefits.filter((item) => item.trim() !== ""),
-        skills: formData.skills.filter((item) => item.trim() !== "")
-      };
-
-      const res = await axios.put(`${import.meta.env.VITE_API_URL}/jobs/${id}`, payload, config);
-
-      if (res.data.success || res.status === 200) {
-        setSuccessMessage("Job updated successfully!");
-
-          navigate(-1);
-       
-      }
-    } catch (err) {
-      console.error("Error updating job:", err);
-      setError(err.response?.data?.message || "Failed to update job details.");
-    } finally {
-      setSubmitting(false);
+    if (!token) {
+      setError("Authentication token not found. Please login again.");
+      return;
     }
-  };
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+
+    // Do NOT send updatedBy: "admin"
+    // Backend should get the logged-in user's ID from JWT.
+    const payload = {
+      title: formData.title,
+      department: formData.department,
+      location: formData.location,
+      type: formData.type,
+      experience: formData.experience,
+      salary: formData.salary,
+      deadline: formData.deadline,
+      status: formData.status,
+      description: formData.description,
+      company: formData.company,
+
+      responsibilities: formData.responsibilities.filter(
+        (item) => item.trim() !== ""
+      ),
+
+      requirements: formData.requirements.filter(
+        (item) => item.trim() !== ""
+      ),
+
+      benefits: formData.benefits.filter(
+        (item) => item.trim() !== ""
+      ),
+
+      skills: formData.skills.filter(
+        (item) => item.trim() !== ""
+      ),
+    };
+
+    console.log("Update Job Payload:", payload);
+
+    const res = await axios.put(
+      `${import.meta.env.VITE_API_URL}/jobs/${id}`,
+      payload,
+      config
+    );
+
+    if (res.data?.success || res.status === 200) {
+      setSuccessMessage("Job updated successfully!");
+
+      setTimeout(() => {
+        navigate(-1);
+      }, 1000);
+    }
+  } catch (err) {
+    console.error(
+      "Error updating job:",
+      err.response?.data || err
+    );
+
+    setError(
+      err.response?.data?.message ||
+        "Failed to update job details."
+    );
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   if (loading) {
     return (

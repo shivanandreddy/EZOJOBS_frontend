@@ -827,18 +827,7 @@ const CandiateJobs = () => {
   return (
     <div className="w-full max-w-[1400px] mx-auto px-2 sm:px-4 pb-12">
       {/* Header */}
-      <div className="mb-4">
-        <p
-          className={`text-xs sm:text-sm ${
-            darkMode
-              ? "text-gray-400"
-              : "text-gray-600"
-          }`}
-        >
-          Browse curated openings matching your skillset
-          and apply instantly.
-        </p>
-      </div>
+      
 
       {/* Search + Filter Bar */}
       <div className="mb-4">
