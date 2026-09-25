@@ -1188,7 +1188,7 @@ const CandiateJobs = () => {
 
                           {job.salary && (
                             <span
-                              className={`px-1 py-0.5 rounded text-[9px] sm:text-[10px] font-medium truncate ${
+                              className={`px-1 py-0.5 rounded text-[9px] sm:text-[10px] font-medium truncate mr-9 ${
                                 darkMode
                                   ? "bg-gray-800 text-gray-300"
                                   : "bg-gray-100 text-gray-700"
@@ -1198,15 +1198,7 @@ const CandiateJobs = () => {
                             </span>
                           )}
 
-                          <span
-                            className={`px-1 py-0.5 rounded text-[9px] sm:text-[10px] font-medium ${
-                              darkMode
-                                ? "bg-gray-800 text-gray-300"
-                                : "bg-gray-100 text-gray-700"
-                            }`}
-                          >
-                            {applicantCount} Applicants
-                          </span>
+                          
 
                           {alreadyApplied && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 text-[9px] font-semibold">
@@ -1305,7 +1297,7 @@ const CandiateJobs = () => {
             DESKTOP JOB DETAILS
             ================================================== */}
         <div
-          className={`hidden lg:block lg:col-span-7 rounded-xl border p-5 sticky top-4 shadow-sm ${
+          className={`hidden lg:block lg:col-span-9 rounded-xl border p-5 sticky top-4 shadow-sm ${
             darkMode
               ? "border-gray-800 bg-gray-900 text-gray-100"
               : "border-gray-200 bg-white text-gray-900"

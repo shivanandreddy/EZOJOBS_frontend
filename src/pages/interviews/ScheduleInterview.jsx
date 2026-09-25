@@ -22,29 +22,96 @@ const ScheduleInterview = () => {
   const [successMessage, setSuccessMessage] = useState("");
 
   // Fetch dropdown dependencies on mount
-  useEffect(() => {
-    const fetchMetadata = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const config = { headers: { Authorization: `Bearer ${token}` } };
+useEffect(() => {
+  const fetchMetadata = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-        const dashboardRes = await axios.get("http://localhost:3000/api/dashboard", config);
-        setJobsList(dashboardRes.data.data.jobs || []);
-        setCandidatesList(dashboardRes.data.data.candiates || []);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-        const usersRes = await axios.get("http://localhost:3000/api/candiates", config);
-        const interviewers = (usersRes.data.data || []).filter(
-          (u) => u.role?.toLowerCase() === "interviewer" || u.role?.toLowerCase() === "hr"
-        );
-        setInterviewersList(interviewers);
-      } catch (err) {
-        console.error("Error loading scheduling metadata:", err);
-        setError("Failed to load prerequisite data (jobs, candidates, or interviewers).");
-      }
-    };
+      // ================================
+      // GET JOBS
+      // ================================
+      const jobsRes = await axios.get(
+        "http://localhost:3000/api/jobs",
+        config
+      );
 
-    fetchMetadata();
-  }, []);
+      const jobsData =
+        jobsRes.data?.data ||
+        jobsRes.data?.jobs ||
+        jobsRes.data ||
+        [];
+
+      setJobsList(
+        Array.isArray(jobsData)
+          ? jobsData
+          : []
+      );
+
+      // ================================
+      // GET CANDIDATES
+      // ================================
+      const candidatesRes = await axios.get(
+        "http://localhost:3000/api/candiates",
+        config
+      );
+
+      const candidatesData =
+        candidatesRes.data?.data ||
+        candidatesRes.data?.candiates ||
+        candidatesRes.data ||
+        [];
+
+      setCandidatesList(
+        Array.isArray(candidatesData)
+          ? candidatesData
+          : []
+      );
+
+      // ================================
+      // GET INTERVIEWERS
+      // ================================
+      const usersRes = await axios.get(
+        "http://localhost:3000/api/candiates",
+        config
+      );
+
+      const usersData =
+        usersRes.data?.data ||
+        usersRes.data ||
+        [];
+
+      const interviewers = (
+        Array.isArray(usersData)
+          ? usersData
+          : []
+      ).filter(
+        (u) =>
+          u.role?.toLowerCase() === "interviewer" ||
+          u.role?.toLowerCase() === "hr"
+      );
+
+      setInterviewersList(interviewers);
+    } catch (err) {
+      console.error(
+        "Error loading scheduling metadata:",
+        err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load prerequisite data (jobs, candidates, or interviewers)."
+      );
+    }
+  };
+
+  fetchMetadata();
+}, []);
 
   const handleAddRound = () => {
     setRounds([

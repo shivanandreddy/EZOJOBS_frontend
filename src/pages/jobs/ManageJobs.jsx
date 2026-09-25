@@ -33,6 +33,7 @@ const ManageJobs = ({ onCreateJobClick, onViewJobClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [departmentFilter, setDepartmentFilter] = useState('All');
+  
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
