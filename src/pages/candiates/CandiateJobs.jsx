@@ -1,324 +1,1266 @@
-import { useOutletContext, useNavigate } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { useOutletContext } from "react-router-dom";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
-import { 
-  Bookmark, 
-  ThumbsDown, 
-  Share2, 
-  MapPin, 
-  CheckCircle2, 
+import {
+  Bookmark,
+  ThumbsDown,
+  Share2,
+  MapPin,
+  CheckCircle2,
   Search,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Loader2,
+  AlertCircle,
+  Check,
+  SlidersHorizontal,
+  ArrowUpDown,
 } from "lucide-react";
 
-const CandidateJobs = () => {
+const CandiateJobs = () => {
   const { darkMode, candidateName } = useOutletContext();
-  const { token, candidate } = useAuth();
+  const { token, candiate } = useAuth();
 
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [applying, setApplying] = useState(false);
   const [appliedMessage, setAppliedMessage] = useState("");
+  const [applyError, setApplyError] = useState("");
 
-  // Pagination states (5 items per page)
   const [currentPage, setCurrentPage] = useState(1);
-  const jobsPerPage = 5;
 
-  // Fetch Jobs List via Axios API
+  // --------------------------------------------------
+  // Search / Filters
+  // --------------------------------------------------
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [jobTypeFilter, setJobTypeFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [experienceFilter, setExperienceFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+
+  const [showFilters, setShowFilters] = useState(false);
+
+  const jobsPerPage = 5;
+  const candiateId = candiate?._id;
+
+  // --------------------------------------------------
+  // Helpers
+  // --------------------------------------------------
+
+  const getSafeText = (value, fallback = "") => {
+    if (value === null || value === undefined) {
+      return fallback;
+    }
+
+    if (typeof value === "string" || typeof value === "number") {
+      return String(value);
+    }
+
+    if (typeof value === "object") {
+      return (
+        value.name ||
+        value.title ||
+        value.label ||
+        value.email ||
+        value._id ||
+        fallback
+      );
+    }
+
+    return fallback;
+  };
+
+  const normalizeArray = (value) => {
+    if (!value) return [];
+    return Array.isArray(value) ? value : [value];
+  };
+
+  const formatArrayItem = (item) => {
+    if (typeof item === "string" || typeof item === "number") {
+      return String(item).replace(/^"|"$/g, "").trim();
+    }
+
+    if (item && typeof item === "object") {
+      return (
+        item.name ||
+        item.title ||
+        item.label ||
+        item.description ||
+        item.value ||
+        item.email ||
+        item._id ||
+        ""
+      );
+    }
+
+    return "";
+  };
+
+  const getApplicantCount = (job) => {
+    if (!job) return 0;
+
+    if (Array.isArray(job.candiatesApplied)) {
+      return job.candiatesApplied.length;
+    }
+
+    if (typeof job.candiatesApplied === "number") {
+      return job.candiatesApplied;
+    }
+
+    return 0;
+  };
+
+  const hasCandidateApplied = (job) => {
+    if (!job || !candiateId) {
+      return false;
+    }
+
+    if (typeof job.isApplied === "boolean") {
+      return job.isApplied;
+    }
+
+    if (!Array.isArray(job.candiatesApplied)) {
+      return false;
+    }
+
+    return job.candiatesApplied.some((application) => {
+      if (!application) return false;
+
+      const appliedCandidateId =
+        typeof application.candiateId === "object"
+          ? application.candiateId?._id
+          : application.candiateId;
+
+      return (
+        appliedCandidateId &&
+        String(appliedCandidateId) === String(candiateId)
+      );
+    });
+  };
+
+  // --------------------------------------------------
+  // Fetch Jobs
+  // --------------------------------------------------
+
   const fetchJobs = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      setError("Authentication token not found.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/jobs`, config);
-      const jobData = res.data.data || res.data.info || res.data || [];
-      
-      setJobs(jobData);
-      if (jobData.length > 0) {
-        setSelectedJob(jobData[0]);
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/jobs`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: candiateId ? { candiateId } : {},
+        }
+      );
+
+      const jobData =
+        res.data?.data ||
+        res.data?.info ||
+        res.data ||
+        [];
+
+      const normalizedJobs = Array.isArray(jobData)
+        ? jobData
+        : [];
+
+      setJobs(normalizedJobs);
+
+      if (normalizedJobs.length > 0) {
+        setSelectedJob(normalizedJobs[0]);
+      } else {
+        setSelectedJob(null);
       }
     } catch (err) {
       console.error("Jobs Fetch Error:", err);
-      setError("Failed to load available openings. Please try again later.");
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load available openings. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, candiateId]);
 
   useEffect(() => {
-    if (token) {
-      fetchJobs();
-    } else {
-      setLoading(false);
-      setError("Authentication token not found.");
-    }
-  }, [token, fetchJobs]);
+    fetchJobs();
+  }, [fetchJobs]);
 
-  // Handle Job Selection & Mobile Modal Toggle
+  // --------------------------------------------------
+  // Dynamic Filter Options
+  // --------------------------------------------------
+
+  const jobTypes = useMemo(() => {
+    return [
+      ...new Set(
+        jobs
+          .map((job) => getSafeText(job.type).trim())
+          .filter(Boolean)
+      ),
+    ].sort();
+  }, [jobs]);
+
+  const locations = useMemo(() => {
+    return [
+      ...new Set(
+        jobs
+          .map((job) => getSafeText(job.location).trim())
+          .filter(Boolean)
+      ),
+    ].sort();
+  }, [jobs]);
+
+  const experiences = useMemo(() => {
+    return [
+      ...new Set(
+        jobs
+          .map((job) => getSafeText(job.experience).trim())
+          .filter(Boolean)
+      ),
+    ].sort();
+  }, [jobs]);
+
+  // --------------------------------------------------
+  // Filter + Search + Sort
+  // --------------------------------------------------
+
+  const filteredJobs = useMemo(() => {
+    const search = searchTerm.trim().toLowerCase();
+
+    const result = jobs.filter((job) => {
+      const title = getSafeText(job.title).toLowerCase();
+      const company = getSafeText(job.company).toLowerCase();
+      const location = getSafeText(job.location).toLowerCase();
+      const type = getSafeText(job.type).toLowerCase();
+      const experience = getSafeText(job.experience).toLowerCase();
+      const salary = getSafeText(job.salary).toLowerCase();
+      const description = getSafeText(job.description).toLowerCase();
+
+      const skills = normalizeArray(job.skills)
+        .map(formatArrayItem)
+        .join(" ")
+        .toLowerCase();
+
+      const searchableText = `
+        ${title}
+        ${company}
+        ${location}
+        ${type}
+        ${experience}
+        ${salary}
+        ${description}
+        ${skills}
+      `.toLowerCase();
+
+      const matchesSearch =
+        !search || searchableText.includes(search);
+
+      const matchesType =
+        jobTypeFilter === "all" ||
+        type === jobTypeFilter.toLowerCase();
+
+      const matchesLocation =
+        locationFilter === "all" ||
+        location === locationFilter.toLowerCase();
+
+      const matchesExperience =
+        experienceFilter === "all" ||
+        experience === experienceFilter.toLowerCase();
+
+      return (
+        matchesSearch &&
+        matchesType &&
+        matchesLocation &&
+        matchesExperience
+      );
+    });
+
+    return [...result].sort((a, b) => {
+      if (sortBy === "title") {
+        return getSafeText(a.title).localeCompare(
+          getSafeText(b.title)
+        );
+      }
+
+      if (sortBy === "oldest") {
+        return (
+          new Date(a.createdAt || 0) -
+          new Date(b.createdAt || 0)
+        );
+      }
+
+      // Default: newest
+      return (
+        new Date(b.createdAt || 0) -
+        new Date(a.createdAt || 0)
+      );
+    });
+  }, [
+    jobs,
+    searchTerm,
+    jobTypeFilter,
+    locationFilter,
+    experienceFilter,
+    sortBy,
+  ]);
+
+  // --------------------------------------------------
+  // Reset Pagination When Filtering
+  // --------------------------------------------------
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchTerm,
+    jobTypeFilter,
+    locationFilter,
+    experienceFilter,
+    sortBy,
+  ]);
+
+  // --------------------------------------------------
+  // Pagination
+  // --------------------------------------------------
+
+  const totalPages = Math.ceil(
+    filteredJobs.length / jobsPerPage
+  );
+
+  const indexOfLastJob =
+    currentPage * jobsPerPage;
+
+  const indexOfFirstJob =
+    indexOfLastJob - jobsPerPage;
+
+  const currentJobs = filteredJobs.slice(
+    indexOfFirstJob,
+    indexOfLastJob
+  );
+
+  const handlePageChange = (newPage) => {
+    if (
+      newPage >= 1 &&
+      newPage <= totalPages
+    ) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  // --------------------------------------------------
+  // Clear Filters
+  // --------------------------------------------------
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setJobTypeFilter("all");
+    setLocationFilter("all");
+    setExperienceFilter("all");
+    setSortBy("newest");
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters =
+    searchTerm ||
+    jobTypeFilter !== "all" ||
+    locationFilter !== "all" ||
+    experienceFilter !== "all" ||
+    sortBy !== "newest";
+
+  // --------------------------------------------------
+  // Job Selection
+  // --------------------------------------------------
+
   const handleSelectJob = (job) => {
     setSelectedJob(job);
+    setApplyError("");
+    setAppliedMessage("");
     setIsModalOpen(true);
   };
 
-  // Handle Job Application
+  // --------------------------------------------------
+  // Apply
+  // --------------------------------------------------
+
   const handleApply = async (jobId) => {
+    if (!token) {
+      setApplyError("Please login to apply for this job.");
+      return;
+    }
+
+    if (!candiateId) {
+      setApplyError(
+        "Candidate ID not found. Please login again."
+      );
+      return;
+    }
+
+    const currentJob = jobs.find(
+      (job) => String(job._id) === String(jobId)
+    );
+
+    if (currentJob && hasCandidateApplied(currentJob)) {
+      setApplyError("");
+      setAppliedMessage(
+        "You have already applied for this position."
+      );
+      return;
+    }
+
     try {
       setApplying(true);
       setAppliedMessage("");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      
-      await axios.post(`${import.meta.env.VITE_API_URL}/jobs/${jobId}/apply`, {}, config);
-      setAppliedMessage("Successfully applied to this position!");
-      setTimeout(() => setAppliedMessage(""), 4000);
+      setApplyError("");
+
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/jobs/${jobId}/apply`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            candiateId,
+          },
+        }
+      );
+
+      const updateJob = (job) => {
+        const existingApplications =
+          Array.isArray(job.candiatesApplied)
+            ? job.candiatesApplied
+            : [];
+
+        return {
+          ...job,
+          isApplied: true,
+          candiatesApplied: [
+            ...existingApplications,
+            {
+              candiateId,
+              status: "Applied",
+            },
+          ],
+        };
+      };
+
+      setJobs((prevJobs) =>
+        prevJobs.map((job) =>
+          String(job._id) === String(jobId)
+            ? updateJob(job)
+            : job
+        )
+      );
+
+      setSelectedJob((prevJob) =>
+        prevJob &&
+        String(prevJob._id) === String(jobId)
+          ? updateJob(prevJob)
+          : prevJob
+      );
+
+      setAppliedMessage(
+        "Successfully applied to this position!"
+      );
+
+      setTimeout(() => {
+        setAppliedMessage("");
+      }, 4000);
     } catch (err) {
       console.error("Application Error:", err);
-      alert(err.response?.data?.message || "Failed to submit application.");
+
+      const message =
+        err.response?.data?.message ||
+        "Failed to submit application.";
+
+      if (
+        message
+          .toLowerCase()
+          .includes("already applied")
+      ) {
+        setJobs((prevJobs) =>
+          prevJobs.map((job) =>
+            String(job._id) === String(jobId)
+              ? {
+                  ...job,
+                  isApplied: true,
+                }
+              : job
+          )
+        );
+
+        setSelectedJob((prevJob) =>
+          prevJob &&
+          String(prevJob._id) === String(jobId)
+            ? {
+                ...prevJob,
+                isApplied: true,
+              }
+            : prevJob
+        );
+
+        setApplyError("");
+        setAppliedMessage(
+          "You have already applied for this position."
+        );
+      } else {
+        setApplyError(message);
+      }
     } finally {
       setApplying(false);
     }
   };
 
-  // Pagination Logic
-  const indexOfLastJob = currentPage * jobsPerPage;
-  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
-  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+  // --------------------------------------------------
+  // Job Details
+  // --------------------------------------------------
 
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
+  const renderJobDetails = (job) => {
+    if (!job) return null;
+
+    const applicantCount = getApplicantCount(job);
+    const alreadyApplied = hasCandidateApplied(job);
+
+    const responsibilities =
+      normalizeArray(job.responsibilities)
+        .map(formatArrayItem)
+        .filter(Boolean);
+
+    const requirements =
+      normalizeArray(job.requirements)
+        .map(formatArrayItem)
+        .filter(Boolean);
+
+    const skills = normalizeArray(job.skills)
+      .flatMap((skill) => {
+        if (typeof skill === "string") {
+          return skill
+            .split('"')
+            .map((item) => item.trim())
+            .filter(Boolean);
+        }
+
+        return [formatArrayItem(skill)];
+      })
+      .filter(Boolean);
+
+    const benefits = normalizeArray(job.benefits)
+      .flatMap((benefit) => {
+        if (typeof benefit === "string") {
+          return benefit
+            .split('"')
+            .map((item) => item.trim())
+            .filter(Boolean);
+        }
+
+        return [formatArrayItem(benefit)];
+      })
+      .filter(Boolean);
+
+    const textSecondary = darkMode
+      ? "text-gray-300"
+      : "text-gray-700";
+
+    const textMuted = darkMode
+      ? "text-gray-400"
+      : "text-gray-600";
+
+    const badgeClass = darkMode
+      ? "bg-gray-800 text-gray-300"
+      : "bg-gray-100 text-gray-700";
+
+    const actionButtonClass = darkMode
+      ? "border-gray-700 text-gray-300 hover:bg-gray-800"
+      : "border-gray-300 text-gray-700 hover:bg-gray-50";
+
+    return (
+      <div>
+        <div
+          className={`border-b pb-3 mb-3 ${
+            darkMode
+              ? "border-gray-800"
+              : "border-gray-200"
+          }`}
+        >
+          <h2 className="text-base sm:text-xl font-bold">
+            {getSafeText(job.title, "Job Title")}
+          </h2>
+
+          <p
+            className={`text-xs sm:text-sm mt-0.5 font-medium ${textSecondary}`}
+          >
+            {getSafeText(job.company, "Company Name")}{" "}
+            &bull;{" "}
+            {getSafeText(job.location, "Location")}
+          </p>
+
+          <p
+            className={`text-xs sm:text-sm mt-0.5 font-semibold ${
+              darkMode
+                ? "text-blue-400"
+                : "text-blue-600"
+            }`}
+          >
+            {getSafeText(
+              job.salary,
+              "Competitive salary package"
+            )}
+          </p>
+
+          <div className="mt-2 flex flex-wrap gap-2 text-[10px] sm:text-xs">
+            <span
+              className={`px-2 py-1 rounded-md ${badgeClass}`}
+            >
+              {applicantCount} Applicants
+            </span>
+
+            {job.type && (
+              <span
+                className={`px-2 py-1 rounded-md ${badgeClass}`}
+              >
+                {getSafeText(job.type)}
+              </span>
+            )}
+
+            {job.experience && (
+              <span
+                className={`px-2 py-1 rounded-md ${badgeClass}`}
+              >
+                Experience:{" "}
+                {getSafeText(job.experience)}
+              </span>
+            )}
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => handleApply(job._id)}
+              disabled={applying || alreadyApplied}
+              className={`rounded-lg px-4 py-1.5 text-xs sm:text-sm font-semibold text-white transition flex items-center gap-2 ${
+                alreadyApplied
+                  ? "bg-emerald-600 cursor-default"
+                  : "bg-blue-600 hover:bg-blue-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              }`}
+            >
+              {applying ? (
+                <>
+                  <Loader2
+                    size={14}
+                    className="animate-spin"
+                  />
+                  Applying...
+                </>
+              ) : alreadyApplied ? (
+                <>
+                  <Check size={14} />
+                  Applied
+                </>
+              ) : (
+                "Apply now"
+              )}
+            </button>
+
+            {[Bookmark, ThumbsDown, Share2].map(
+              (Icon, index) => (
+                <button
+                  key={index}
+                  className={`p-1.5 sm:p-2 rounded-lg border transition cursor-pointer ${actionButtonClass}`}
+                >
+                  <Icon size={15} />
+                </button>
+              )
+            )}
+          </div>
+        </div>
+
+        {applyError && (
+          <div className="mb-3 p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs flex items-center gap-2">
+            <AlertCircle size={15} />
+            <span>{applyError}</span>
+          </div>
+        )}
+
+        {appliedMessage && (
+          <div className="mb-3 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
+            <CheckCircle2 size={15} />
+            <span>{appliedMessage}</span>
+          </div>
+        )}
+
+        <div className="space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto pr-1 text-xs sm:text-sm">
+          <h3 className="font-semibold text-sm">
+            Full job description
+          </h3>
+
+          <p
+            className={`leading-relaxed ${textMuted}`}
+          >
+            {getSafeText(
+              job.description,
+              "We are seeking a talented and motivated professional to join our dynamic team."
+            )}
+          </p>
+
+          {responsibilities.length > 0 && (
+            <div className="pt-1">
+              <h4 className="font-semibold mb-1">
+                Your responsibilities:
+              </h4>
+
+              <ul
+                className={`list-disc pl-4 space-y-1 ${textMuted}`}
+              >
+                {responsibilities.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {skills.length > 0 && (
+            <div className="pt-1">
+              <h4 className="font-semibold mb-1">
+                Required Skills:
+              </h4>
+
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className={`px-2 py-1 rounded-full text-[10px] font-medium border ${
+                      darkMode
+                        ? "bg-blue-950/50 text-blue-300 border-blue-900"
+                        : "bg-blue-50 text-blue-700 border-blue-200"
+                    }`}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {requirements.length > 0 && (
+            <div className="pt-1">
+              <h4 className="font-semibold mb-1">
+                Requirements:
+              </h4>
+
+              <ul
+                className={`list-disc pl-4 space-y-1 ${textMuted}`}
+              >
+                {requirements.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {benefits.length > 0 && (
+            <div className="pt-1">
+              <h4 className="font-semibold mb-1">
+                Perks & Benefits:
+              </h4>
+
+              <ul
+                className={`list-disc pl-4 space-y-1 ${textMuted}`}
+              >
+                {benefits.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
+
+  // --------------------------------------------------
+  // Loading
+  // --------------------------------------------------
 
   if (loading) {
     return (
-      <div className={`w-full min-h-[60vh] flex items-center justify-center ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+      <div
+        className={`w-full min-h-[60vh] flex items-center justify-center ${
+          darkMode
+            ? "text-gray-400"
+            : "text-gray-500"
+        }`}
+      >
         <div className="animate-pulse font-medium text-lg flex items-center gap-2">
-          <Search className="animate-bounce" size={20} /> Loading job opportunities...
+          <Search
+            className="animate-bounce"
+            size={20}
+          />
+          Loading job opportunities...
         </div>
       </div>
     );
   }
 
-  // Reusable component content for the details view
-  const renderJobDetails = (job) => {
-    return (
-      <div>
-        <div className="border-b pb-3 mb-3 dark:border-gray-800">
-          <h2 className="text-base sm:text-xl font-bold">{job.title}</h2>
-          <p className={`text-xs sm:text-sm mt-0.5 font-medium ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-            {job.company} &bull; {job.location}
-          </p>
-          <p className={`text-xs sm:text-sm mt-0.5 font-semibold ${darkMode ? "text-blue-400" : "text-blue-600"}`}>
-            {job.salary || "Competitive salary package"}
-          </p>
-
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => handleApply(job._id)}
-              disabled={applying}
-              className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs sm:text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
-            >
-              {applying ? "Applying..." : "Apply now"}
-            </button>
-
-            <button className={`p-1.5 sm:p-2 rounded-lg border transition cursor-pointer ${darkMode ? "border-gray-700 hover:bg-gray-800 text-gray-300" : "border-gray-300 hover:bg-gray-50 text-gray-700"}`} title="Bookmark Job">
-              <Bookmark size={15} />
-            </button>
-
-            <button className={`p-1.5 sm:p-2 rounded-lg border transition cursor-pointer ${darkMode ? "border-gray-700 hover:bg-gray-800 text-gray-300" : "border-gray-300 hover:bg-gray-50 text-gray-700"}`} title="Not Interested">
-              <ThumbsDown size={15} />
-            </button>
-
-            <button className={`p-1.5 sm:p-2 rounded-lg border transition cursor-pointer ${darkMode ? "border-gray-700 hover:bg-gray-800 text-gray-300" : "border-gray-300 hover:bg-gray-50 text-gray-700"}`} title="Share Job">
-              <Share2 size={15} />
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto pr-1 text-xs sm:text-sm">
-          <h3 className="font-semibold text-sm">Full job description</h3>
-          <p className={`leading-relaxed ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-            {job.description || "We are seeking a talented and motivated professional to join our dynamic development team."}
-          </p>
-
-          {job.responsibilities && (
-            <div className="pt-1">
-              <h4 className="font-semibold mb-1">Your responsibilities:</h4>
-              <ul className={`list-disc pl-4 space-y-1 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-                {Array.isArray(job.responsibilities) ? (
-                  job.responsibilities.map((resp, idx) => <li key={idx}>{resp}</li>)
-                ) : (
-                  <li>{job.responsibilities}</li>
-                )}
-              </ul>
-            </div>
-          )}
-
-          {job.skills && job.skills.length > 0 && (
-            <div className="pt-1">
-              <h4 className="font-semibold mb-1">Required Skills:</h4>
-              <ul className={`list-disc pl-4 space-y-1 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-                {job.skills
-                  .flatMap(s => typeof s === 'string' ? s.split('"') : [s])
-                  .filter(Boolean)
-                  .map((skill, index) => (
-                    <li key={index} >
-                      <span className="h-1.5 w-1.5 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0" />
-                      <span>{String(skill).trim()}</span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
-
-          {job.requirements && (
-            <div className="pt-1">
-              <h4 className="font-semibold mb-1">Requirements:</h4>
-              <ul className={`list-disc pl-4 space-y-1 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-                {Array.isArray(job.requirements) ? (
-                  job.requirements.map((req, idx) => <li key={idx}>{req}</li>)
-                ) : (
-                  <li>{job.requirements}</li>
-                )}
-              </ul>
-            </div>
-          )}
-
-          
-
-          {job.benefits &&
-            job.benefits.length > 0 && (
-              <div>
-                <h2 className="font-semibold mb-1">
-                  Perks & Benefits
-                </h2>
-
-                <ul className={`list-disc pl-4 space-y-1 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-                  {job.benefits
-                    .flatMap(b =>
-                      typeof b === 'string'
-                        ? b.split('"')
-                        : [b]
-                    )
-                    .filter(Boolean)
-                    .map((benefit,idx) => (
-                      <li
-                        key={idx}
-                        
-                      >
-                        <span className="h-1.5 w-1.5 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0" />
-                        <span>{String(benefit).trim()}</span>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            )}
-        </div>
-      </div>
-    );
-  };
+  // --------------------------------------------------
+  // Main UI
+  // --------------------------------------------------
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-2 sm:px-4 pb-12">
-      <div className="mb-4 flex flex-col gap-2">
-        <p className={`text-xs sm:text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-          Browse curated openings matching your skillset and apply instantly.
+      {/* Header */}
+      <div className="mb-4">
+        <p
+          className={`text-xs sm:text-sm ${
+            darkMode
+              ? "text-gray-400"
+              : "text-gray-600"
+          }`}
+        >
+          Browse curated openings matching your skillset
+          and apply instantly.
         </p>
       </div>
 
+     {/* Search + Filter Bar */}
+{/* Search + Filter Bar */}
+<div className="mb-4">
+  {/* Search + Filters + Sort - ONE ROW */}
+  <div className="flex items-center gap-2 w-full">
+    {/* Search */}
+    <div className="relative w-[45%] sm:flex-1 min-w-0">
+      <Search
+        size={16}
+        className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+          darkMode
+            ? "text-gray-500"
+            : "text-gray-400"
+        }`}
+      />
+
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={(e) =>
+          setSearchTerm(e.target.value)
+        }
+        placeholder="Search jobs, company..."
+        className={`w-full pl-9 pr-8 py-2.5 rounded-lg border text-sm outline-none transition ${
+          darkMode
+            ? "bg-gray-800 border-gray-700 text-gray-100 placeholder-gray-500 focus:border-blue-500"
+            : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500"
+        }`}
+      />
+
+      {searchTerm && (
+        <button
+          onClick={() => setSearchTerm("")}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        >
+          <X size={14} />
+        </button>
+      )}
+    </div>
+
+    {/* Filters */}
+    <button
+      onClick={() => setShowFilters(!showFilters)}
+      className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-lg border text-xs sm:text-sm font-medium transition ${
+        showFilters
+          ? "bg-blue-600 text-white border-blue-600"
+          : darkMode
+          ? "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-750"
+          : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+      }`}
+    >
+      <SlidersHorizontal size={15} />
+
+      <span>Filters</span>
+
+      {[
+        jobTypeFilter !== "all",
+        locationFilter !== "all",
+        experienceFilter !== "all",
+      ].filter(Boolean).length > 0 && (
+        <span
+          className={`min-w-[17px] h-[17px] px-1 rounded-full flex items-center justify-center text-[9px] font-bold ${
+            showFilters
+              ? "bg-white text-blue-600"
+              : "bg-blue-600 text-white"
+          }`}
+        >
+          {
+            [
+              jobTypeFilter !== "all",
+              locationFilter !== "all",
+              experienceFilter !== "all",
+            ].filter(Boolean).length
+          }
+        </span>
+      )}
+    </button>
+
+    {/* Sort */}
+    <div className="relative shrink-0">
+      <ArrowUpDown
+        size={14}
+        className={`absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${
+          darkMode
+            ? "text-gray-500"
+            : "text-gray-400"
+        }`}
+      />
+
+      <select
+        value={sortBy}
+        onChange={(e) =>
+          setSortBy(e.target.value)
+        }
+        className={`appearance-none pl-8 pr-7 py-2.5 rounded-lg border text-xs sm:text-sm outline-none cursor-pointer ${
+          darkMode
+            ? "bg-gray-800 border-gray-700 text-gray-200"
+            : "bg-gray-50 border-gray-200 text-gray-700"
+        }`}
+      >
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="title">A-Z</option>
+      </select>
+    </div>
+  </div>
+
+  {/* Filter Options - SECOND ROW */}
+  {showFilters && (
+    <div className="mt-2 w-full overflow-hidden">
+      <div
+        className={`flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide ${
+          darkMode
+            ? "text-gray-200"
+            : "text-gray-700"
+        }`}
+      >
+        {/* All Types */}
+        <select
+          value={jobTypeFilter}
+          onChange={(e) =>
+            setJobTypeFilter(e.target.value)
+          }
+          className={`shrink-0 w-[145px] px-3 py-2.5 rounded-lg border text-xs sm:text-sm outline-none ${
+            darkMode
+              ? "bg-gray-800 border-gray-700 text-gray-200"
+              : "bg-gray-50 border-gray-200 text-gray-700"
+          }`}
+        >
+          <option value="all">
+            All Types
+          </option>
+
+          {jobTypes.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+
+        {/* All Locations */}
+        <select
+          value={locationFilter}
+          onChange={(e) =>
+            setLocationFilter(e.target.value)
+          }
+          className={`shrink-0 w-[155px] px-3 py-2.5 rounded-lg border text-xs sm:text-sm outline-none ${
+            darkMode
+              ? "bg-gray-800 border-gray-700 text-gray-200"
+              : "bg-gray-50 border-gray-200 text-gray-700"
+          }`}
+        >
+          <option value="all">
+            All Locations
+          </option>
+
+          {locations.map((location) => (
+            <option
+              key={location}
+              value={location}
+            >
+              {location}
+            </option>
+          ))}
+        </select>
+
+        {/* All Experience */}
+        <select
+          value={experienceFilter}
+          onChange={(e) =>
+            setExperienceFilter(e.target.value)
+          }
+          className={`shrink-0 w-[155px] px-3 py-2.5 rounded-lg border text-xs sm:text-sm outline-none ${
+            darkMode
+              ? "bg-gray-800 border-gray-700 text-gray-200"
+              : "bg-gray-50 border-gray-200 text-gray-700"
+          }`}
+        >
+          <option value="all">
+            All Experience
+          </option>
+
+          {experiences.map((experience) => (
+            <option
+              key={experience}
+              value={experience}
+            >
+              {experience}
+            </option>
+          ))}
+        </select>
+
+        {/* Clear */}
+        {hasActiveFilters && (
+          <button
+            onClick={clearFilters}
+            className="shrink-0 px-3 py-2.5 rounded-lg border border-red-200 text-red-600 dark:border-red-900 dark:text-red-400 text-xs font-medium"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Results Count */}
+  <div
+    className={`mt-2 text-xs ${
+      darkMode
+        ? "text-gray-500"
+        : "text-gray-500"
+    }`}
+  >
+    Showing{" "}
+    <span className="font-semibold">
+      {filteredJobs.length}
+    </span>{" "}
+    of{" "}
+    <span className="font-semibold">
+      {jobs.length}
+    </span>{" "}
+    jobs
+  </div>
+</div>
+
+
+
+      {/* Error */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 rounded-lg text-xs">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 rounded-lg text-xs flex items-center gap-2">
+          <AlertCircle size={15} />
           {error}
         </div>
       )}
 
+      {/* Success */}
       {appliedMessage && (
         <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300 rounded-lg text-xs flex items-center gap-2">
-          <CheckCircle2 size={16} /> {appliedMessage}
+          <CheckCircle2 size={16} />
+          {appliedMessage}
         </div>
       )}
 
-      <h2 className="text-lg font-semibold mb-3">Jobs for you</h2>
+      <h2
+        className={`text-lg font-semibold mb-3 ${
+          darkMode
+            ? "text-gray-100"
+            : "text-gray-900"
+        }`}
+      >
+        Jobs for you
+      </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        <div className="col-span-1 lg:col-span-5 flex flex-col justify-between space-y-2">
+        {/* Job List */}
+        <div className=" lg:col-span-3  col-span5 flex  justify-between space-y-2">
           <div className="space-y-2">
             {currentJobs.length > 0 ? (
               currentJobs.map((job) => {
-                const isSelected = selectedJob?._id === job._id;
+                const isSelected =
+                  String(selectedJob?._id) ===
+                  String(job._id);
+
+                const applicantCount =
+                  getApplicantCount(job);
+
+                const alreadyApplied =
+                  hasCandidateApplied(job);
+
                 return (
                   <div
                     key={job._id}
-                    onClick={() => handleSelectJob(job)}
-                    className={`cursor-pointer rounded-lg border p-2 sm:p-3 transition-all relative ${
-                      darkMode 
-                        ? isSelected ? "border-blue-500 bg-gray-800 shadow-sm ring-1 ring-blue-500" : "border-gray-800 bg-gray-900 hover:border-gray-700" 
-                        : isSelected ? "border-blue-600 bg-white shadow-sm ring-1 ring-blue-600" : "border-gray-200 bg-white hover:border-gray-300"
+                    onClick={() =>
+                      handleSelectJob(job)
+                    }
+                    className={`cursor-pointer rounded-lg border p-2 sm:p-3 transition-all ${
+                      darkMode
+                        ? isSelected
+                          ? "border-blue-500 bg-gray-800 shadow-sm ring-1 ring-blue-500"
+                          : "border-gray-800 bg-gray-900 hover:border-gray-700"
+                        : isSelected
+                        ? "border-blue-600 bg-white shadow-sm ring-1 ring-blue-600"
+                        : "border-gray-200 bg-white hover:border-gray-300"
                     }`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="min-w-0 flex-1">
-                        {job.easilyApply !== false && (
-                          <span className={`inline-block mb-1 px-1 py-0.5 text-[9px] sm:text-[10px] font-medium rounded ${
-                            darkMode ? "bg-blue-950 text-blue-300" : "bg-blue-50 text-blue-700"
-                          }`}>
-                            Easily apply
-                          </span>
-                        )}
-                        <h3 className="font-semibold text-xs sm:text-sm truncate">{job.title || "Job Title"}</h3>
-                        <p className={`text-[11px] sm:text-xs truncate ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          {job.company || "Company Name"}
+                       
+
+                        <h3
+                          className={`font-semibold text-xs sm:text-sm truncate ${
+                            darkMode
+                              ? "text-gray-100"
+                              : "text-gray-900"
+                          }`}
+                        >
+                          {getSafeText(
+                            job.title,
+                            "Job Title"
+                          )}
+                        </h3>
+
+                        <p
+                          className={`text-[11px] sm:text-xs truncate ${
+                            darkMode
+                              ? "text-gray-400"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          {getSafeText(
+                            job.company,
+                            "Company Name"
+                          )}
                         </p>
-                        
-                        <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400">
+
+                        <div
+                          className={`mt-1 flex flex-wrap items-center gap-2 text-[10px] sm:text-[11px] ${
+                            darkMode
+                              ? "text-gray-400"
+                              : "text-gray-500"
+                          }`}
+                        >
                           <span className="flex items-center gap-1 truncate">
-                            <MapPin size={10} className="shrink-0" /> {job.location || "Location"}
+                            <MapPin
+                              size={10}
+                              className="shrink-0"
+                            />
+
+                            {getSafeText(
+                              job.location,
+                              "Location"
+                            )}
                           </span>
+
                           {job.salary && (
-                            <span className={`px-1 py-0.5 rounded text-[9px] sm:text-[10px] font-medium truncate ${
-                              darkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
-                            }`}>
-                              {job.salary}
+                            <span
+                              className={`px-1 py-0.5 rounded text-[9px] sm:text-[10px] font-medium truncate ${
+                                darkMode
+                                  ? "bg-gray-800 text-gray-300"
+                                  : "bg-gray-100 text-gray-700"
+                              }`}
+                            >
+                              {getSafeText(job.salary)}
+                            </span>
+                          )}
+
+                          <span
+                            className={`px-1 py-0.5 rounded text-[9px] sm:text-[10px] font-medium ${
+                              darkMode
+                                ? "bg-gray-800 text-gray-300"
+                                : "bg-gray-100 text-gray-700"
+                            }`}
+                          >
+                            {applicantCount} Applicants
+                          </span>
+
+                          {alreadyApplied && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 text-[9px] font-semibold">
+                              <Check size={10} />
+                              Applied
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 shrink-0 ml-1">
-                        <button onClick={(e) => { e.stopPropagation(); }} className={`p-1 rounded transition cursor-pointer ${darkMode ? "text-gray-400 hover:bg-gray-800" : "text-gray-500 hover:bg-gray-100"}`} title="Save Job">
-                          <Bookmark size={12} />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); }} className={`p-1 rounded transition cursor-pointer ${darkMode ? "text-gray-400 hover:bg-gray-800" : "text-gray-500 hover:bg-gray-100"}`} title="Not Interested">
-                          <ThumbsDown size={12} />
-                        </button>
-                      </div>
+                      
                     </div>
                   </div>
                 );
               })
             ) : (
-              <div className={`p-4 text-center rounded-lg border text-xs ${darkMode ? "border-gray-800 bg-gray-900 text-gray-400" : "border-gray-200 bg-white text-gray-500"}`}>
-                No jobs available.
+              <div
+                className={`p-6 text-center rounded-lg border text-xs ${
+                  darkMode
+                    ? "border-gray-800 bg-gray-900 text-gray-400"
+                    : "border-gray-200 bg-white text-gray-500"
+                }`}
+              >
+                <Search
+                  size={22}
+                  className="mx-auto mb-2 opacity-50"
+                />
+
+                <p className="font-medium">
+                  No jobs found
+                </p>
+
+                <p className="mt-1 opacity-75">
+                  Try changing your search or filters.
+                </p>
+
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="mt-3 text-blue-600 dark:text-blue-400 font-medium hover:underline"
+                  >
+                    Clear filters
+                  </button>
+                )}
               </div>
             )}
           </div>
 
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div className={`flex items-center justify-between px-2 py-1.5 rounded-lg border text-xs ${
-              darkMode ? "border-gray-800 bg-gray-900 text-gray-300" : "border-gray-200 bg-white text-gray-700"
-            }`}>
+            <div
+              className={`flex items-center justify-between px-2 py-1.5 rounded-lg border text-xs ${
+                darkMode
+                  ? "border-gray-800 bg-gray-900 text-gray-300"
+                  : "border-gray-200 bg-white text-gray-700"
+              }`}
+            >
               <button
-                onClick={() => handlePageChange(currentPage - 1)}
+                onClick={() =>
+                  handlePageChange(
+                    currentPage - 1
+                  )
+                }
                 disabled={currentPage === 1}
-                className={`p-1 rounded flex items-center font-medium transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${darkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}
+                className={`p-1 rounded flex items-center font-medium transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${
+                  darkMode
+                    ? "hover:bg-gray-800"
+                    : "hover:bg-gray-100"
+                }`}
               >
                 <ChevronLeft size={14} />
               </button>
@@ -328,9 +1270,19 @@ const CandidateJobs = () => {
               </span>
 
               <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`p-1 rounded flex items-center font-medium transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${darkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}
+                onClick={() =>
+                  handlePageChange(
+                    currentPage + 1
+                  )
+                }
+                disabled={
+                  currentPage === totalPages
+                }
+                className={`p-1 rounded flex items-center font-medium transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${
+                  darkMode
+                    ? "hover:bg-gray-800"
+                    : "hover:bg-gray-100"
+                }`}
               >
                 <ChevronRight size={14} />
               </button>
@@ -338,29 +1290,55 @@ const CandidateJobs = () => {
           )}
         </div>
 
-        <div className={`hidden lg:block lg:col-span-7 rounded-xl border p-5 sticky top-4 shadow-sm ${
-          darkMode ? "border-gray-800 bg-gray-900" : "border-gray-200 bg-white"
-        }`}>
+        {/* Desktop Details */}
+        <div
+          className={`hidden lg:block lg:col-span-7 rounded-xl border p-5 sticky top-4 shadow-sm ${
+            darkMode
+              ? "border-gray-800 bg-gray-900 text-gray-100"
+              : "border-gray-200 bg-white text-gray-900"
+          }`}
+        >
           {selectedJob ? (
             renderJobDetails(selectedJob)
           ) : (
             <div className="py-12 text-center text-gray-400 text-xs sm:text-sm">
-              Select a job from the list to view full description.
+              Select a job from the list to view full
+              description.
             </div>
           )}
         </div>
       </div>
 
+      {/* Mobile Modal */}
       {isModalOpen && selectedJob && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 lg:hidden">
-          <div className={`w-full max-h-[90vh] sm:max-w-xl rounded-t-2xl sm:rounded-2xl border shadow-xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom duration-200 ${
-            darkMode ? "border-gray-800 bg-gray-900 text-gray-100" : "border-gray-200 bg-white text-gray-900"
-          }`}>
-            <div className={`flex items-center justify-between px-4 py-3 border-b ${darkMode ? "border-gray-800 bg-gray-900" : "border-gray-200 bg-gray-50"}`}>
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-500">Job Overview</span>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 lg:hidden">
+          <div
+            className={`w-full max-h-[90vh] sm:max-w-xl rounded-t-2xl sm:rounded-2xl border shadow-xl flex flex-col overflow-hidden ${
+              darkMode
+                ? "border-gray-800 bg-gray-900 text-gray-100"
+                : "border-gray-200 bg-white text-gray-900"
+            }`}
+          >
+            <div
+              className={`flex items-center justify-between px-4 py-3 border-b ${
+                darkMode
+                  ? "border-gray-800 bg-gray-900"
+                  : "border-gray-200 bg-gray-50"
+              }`}
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-500">
+                Job Overview
+              </span>
+
               <button
-                onClick={() => setIsModalOpen(false)}
-                className={`p-1.5 rounded-full transition cursor-pointer ${darkMode ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-200 text-gray-600"}`}
+                onClick={() =>
+                  setIsModalOpen(false)
+                }
+                className={`p-1.5 rounded-full transition cursor-pointer ${
+                  darkMode
+                    ? "hover:bg-gray-800 text-gray-400"
+                    : "hover:bg-gray-200 text-gray-600"
+                }`}
               >
                 <X size={18} />
               </button>
@@ -376,4 +1354,4 @@ const CandidateJobs = () => {
   );
 };
 
-export default CandidateJobs;
+export default CandiateJobs;

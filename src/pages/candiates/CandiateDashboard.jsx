@@ -15,6 +15,7 @@ import {
 const CandiateDashboard = () => {
   // Grab state/props shared from layout if needed (like darkMode)
   const { darkMode, candidateName } = useOutletContext();
+  console.log(darkMode)
   const navigate = useNavigate();
   
   const [jobs, setJobs] = useState([]);
@@ -43,6 +44,7 @@ const CandiateDashboard = () => {
   });
 
   const { token, candiate } = useAuth();
+  console.log(candiate)
   const candidateId = candiate?._id || candiate?.id;
 
   // Fetch full candidate details by ID to get profile completion data

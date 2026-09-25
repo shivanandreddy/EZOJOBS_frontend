@@ -11,7 +11,6 @@ import {
   ArrowLeft,
   Edit,
   Share2,
-  Send,
   XCircle,
   X,
   Loader2,
