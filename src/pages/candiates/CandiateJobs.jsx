@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 const CandiateJobs = () => {
-  const { darkMode, candidateName } = useOutletContext();
+  const { darkMode } = useOutletContext();
   const { token, candiate } = useAuth();
 
   const [jobs, setJobs] = useState([]);
@@ -46,10 +46,10 @@ const CandiateJobs = () => {
   const [locationFilter, setLocationFilter] = useState("all");
   const [experienceFilter, setExperienceFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-
   const [showFilters, setShowFilters] = useState(false);
 
-  const jobsPerPage = 6;
+  const jobsPerPage = 8;
+
   const candiateId = candiate?._id;
 
   // --------------------------------------------------
@@ -323,7 +323,7 @@ const CandiateJobs = () => {
   ]);
 
   // --------------------------------------------------
-  // Reset Pagination When Filtering
+  // Reset Pagination
   // --------------------------------------------------
 
   useEffect(() => {
@@ -418,9 +418,11 @@ const CandiateJobs = () => {
 
     if (currentJob && hasCandidateApplied(currentJob)) {
       setApplyError("");
+
       setAppliedMessage(
         "You have already applied for this position."
       );
+
       return;
     }
 
@@ -517,6 +519,7 @@ const CandiateJobs = () => {
         );
 
         setApplyError("");
+
         setAppliedMessage(
           "You have already applied for this position."
         );
@@ -591,9 +594,10 @@ const CandiateJobs = () => {
       : "border-gray-300 text-gray-700 hover:bg-gray-50";
 
     return (
-      <div>
+      <div className="h-full">
+        {/* Header */}
         <div
-          className={`border-b pb-3 mb-3 ${
+          className={`border-b pb-4 mb-4 ${
             darkMode
               ? "border-gray-800"
               : "border-gray-200"
@@ -604,14 +608,14 @@ const CandiateJobs = () => {
           </h2>
 
           <p
-            className={`text-xs sm:text-sm mt-0.5 font-medium ${textSecondary}`}
+            className={`text-xs sm:text-sm mt-1 font-medium ${textSecondary}`}
           >
             {getSafeText(job.company, "Company Name")} &bull;{" "}
             {getSafeText(job.location, "Location")}
           </p>
 
           <p
-            className={`text-xs sm:text-sm mt-0.5 font-semibold ${
+            className={`text-xs sm:text-sm mt-1 font-semibold ${
               darkMode
                 ? "text-blue-400"
                 : "text-blue-600"
@@ -623,7 +627,7 @@ const CandiateJobs = () => {
             )}
           </p>
 
-          <div className="mt-2 flex flex-wrap gap-2 text-[10px] sm:text-xs">
+          <div className="mt-3 flex flex-wrap gap-2 text-[10px] sm:text-xs">
             <span
               className={`px-2 py-1 rounded-md ${badgeClass}`}
             >
@@ -647,7 +651,7 @@ const CandiateJobs = () => {
             )}
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               onClick={() => handleApply(job._id)}
               disabled={applying || alreadyApplied}
@@ -688,6 +692,7 @@ const CandiateJobs = () => {
           </div>
         </div>
 
+        {/* Error */}
         {applyError && (
           <div className="mb-3 p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs flex items-center gap-2">
             <AlertCircle size={15} />
@@ -695,16 +700,12 @@ const CandiateJobs = () => {
           </div>
         )}
 
-        {appliedMessage && (
-          <div className="mb-3 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
-            <CheckCircle2 size={15} />
-            <span>{appliedMessage}</span>
-          </div>
-        )}
+       
 
-        <div className="space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto pr-1 text-xs sm:text-sm">
+        {/* Scrollable Job Details */}
+        <div className="space-y-4 max-h-[calc(100vh-190px)] overflow-y-auto pr-2 text-xs sm:text-sm">
           <h3 className="font-semibold text-sm">
-            Full job description
+            Job Description
           </h3>
 
           <p
@@ -716,14 +717,15 @@ const CandiateJobs = () => {
             )}
           </p>
 
+          {/* Responsibilities */}
           {responsibilities.length > 0 && (
-            <div className="pt-1">
-              <h4 className="font-semibold mb-1">
-                Your responsibilities:
+            <div className="pt-2">
+              <h4 className="font-semibold mb-2">
+                Roles & Responsibilities
               </h4>
 
               <ul
-                className={`list-disc pl-4 space-y-1 ${textMuted}`}
+                className={`list-disc pl-5 space-y-2 ${textMuted}`}
               >
                 {responsibilities.map((item, index) => (
                   <li key={index}>{item}</li>
@@ -732,10 +734,11 @@ const CandiateJobs = () => {
             </div>
           )}
 
+          {/* Skills */}
           {skills.length > 0 && (
-            <div className="pt-1">
-              <h4 className="font-semibold mb-1">
-                Required Skills:
+            <div className="pt-2">
+              <h4 className="font-semibold mb-2">
+                Skills Required
               </h4>
 
               <div className="flex flex-wrap gap-2">
@@ -755,14 +758,15 @@ const CandiateJobs = () => {
             </div>
           )}
 
+          {/* Requirements */}
           {requirements.length > 0 && (
-            <div className="pt-1">
-              <h4 className="font-semibold mb-1">
-                Requirements:
+            <div className="pt-2">
+              <h4 className="font-semibold mb-2">
+                Requirements
               </h4>
 
               <ul
-                className={`list-disc pl-4 space-y-1 ${textMuted}`}
+                className={`list-disc pl-5 space-y-2 ${textMuted}`}
               >
                 {requirements.map((item, index) => (
                   <li key={index}>{item}</li>
@@ -771,14 +775,15 @@ const CandiateJobs = () => {
             </div>
           )}
 
+          {/* Benefits */}
           {benefits.length > 0 && (
-            <div className="pt-1">
-              <h4 className="font-semibold mb-1">
-                Perks & Benefits:
+            <div className="pt-2 pb-4">
+              <h4 className="font-semibold mb-2">
+                Perks & Benefits
               </h4>
 
               <ul
-                className={`list-disc pl-4 space-y-1 ${textMuted}`}
+                className={`list-disc pl-5 space-y-2 ${textMuted}`}
               >
                 {benefits.map((item, index) => (
                   <li key={index}>{item}</li>
@@ -821,7 +826,6 @@ const CandiateJobs = () => {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-2 sm:px-4 pb-12">
-
       {/* Header */}
       <div className="mb-4">
         <p
@@ -838,10 +842,7 @@ const CandiateJobs = () => {
 
       {/* Search + Filter Bar */}
       <div className="mb-4">
-
-        {/* Search + Filters + Sort */}
         <div className="flex items-center gap-2 w-full">
-
           {/* Search */}
           <div className="relative w-[45%] sm:flex-1 min-w-0">
             <Search
@@ -891,7 +892,6 @@ const CandiateJobs = () => {
             }`}
           >
             <SlidersHorizontal size={15} />
-
             <span>Filters</span>
 
             {[
@@ -939,17 +939,9 @@ const CandiateJobs = () => {
                   : "bg-gray-50 border-gray-200 text-gray-700"
               }`}
             >
-              <option value="newest">
-                Newest
-              </option>
-
-              <option value="oldest">
-                Oldest
-              </option>
-
-              <option value="title">
-                A-Z
-              </option>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="title">A-Z</option>
             </select>
           </div>
         </div>
@@ -964,7 +956,6 @@ const CandiateJobs = () => {
                   : "text-gray-700"
               }`}
             >
-              {/* All Types */}
               <select
                 value={jobTypeFilter}
                 onChange={(e) =>
@@ -976,9 +967,7 @@ const CandiateJobs = () => {
                     : "bg-gray-50 border-gray-200 text-gray-700"
                 }`}
               >
-                <option value="all">
-                  All Types
-                </option>
+                <option value="all">All Types</option>
 
                 {jobTypes.map((type) => (
                   <option key={type} value={type}>
@@ -987,7 +976,6 @@ const CandiateJobs = () => {
                 ))}
               </select>
 
-              {/* All Locations */}
               <select
                 value={locationFilter}
                 onChange={(e) =>
@@ -1013,7 +1001,6 @@ const CandiateJobs = () => {
                 ))}
               </select>
 
-              {/* All Experience */}
               <select
                 value={experienceFilter}
                 onChange={(e) =>
@@ -1039,7 +1026,6 @@ const CandiateJobs = () => {
                 ))}
               </select>
 
-              {/* Clear */}
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
@@ -1098,26 +1084,16 @@ const CandiateJobs = () => {
         Jobs for you
       </h2>
 
-      {/* ==================================================
-          MAIN JOB GRID
-          ================================================== */}
+      {/* Main Job Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-
-        {/* ==================================================
-            JOB LIST + PAGINATION
-            ================================================== */}
-        <div className="lg:col-span-3 col-span-5 flex flex-col space-y-3">
-
-          {/* Job List */}
+        {/* Job List */}
+        <div className="lg:col-span-3 col-span-4 flex flex-col space-y-3">
           <div className="space-y-2">
             {currentJobs.length > 0 ? (
               currentJobs.map((job) => {
                 const isSelected =
                   String(selectedJob?._id) ===
                   String(job._id);
-
-                const applicantCount =
-                  getApplicantCount(job);
 
                 const alreadyApplied =
                   hasCandidateApplied(job);
@@ -1140,7 +1116,6 @@ const CandiateJobs = () => {
                   >
                     <div className="flex items-start justify-between">
                       <div className="min-w-0 flex-1">
-
                         <h3
                           className={`font-semibold text-xs sm:text-sm truncate ${
                             darkMode
@@ -1185,18 +1160,6 @@ const CandiateJobs = () => {
                               "Location"
                             )}
                           </span>
-
-                          {job.salary && (
-                            <span
-                              className={`px-1 py-0.5 rounded text-[9px] sm:text-[10px] font-medium truncate mr-9 ${
-                                darkMode
-                                  ? "bg-gray-800 text-gray-300"
-                                  : "bg-gray-100 text-gray-700"
-                              }`}
-                            >
-                              {getSafeText(job.salary)}
-                            </span>
-                          )}
 
                           
 
@@ -1245,9 +1208,7 @@ const CandiateJobs = () => {
             )}
           </div>
 
-          {/* ==================================================
-              PAGINATION - ALWAYS BELOW JOB LIST
-              ================================================== */}
+          {/* Pagination */}
           {totalPages > 1 && (
             <div
               className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg border text-xs ${
@@ -1293,11 +1254,9 @@ const CandiateJobs = () => {
           )}
         </div>
 
-        {/* ==================================================
-            DESKTOP JOB DETAILS
-            ================================================== */}
+        {/* Desktop Job Details */}
         <div
-          className={`hidden lg:block lg:col-span-9 rounded-xl border p-5 sticky top-4 shadow-sm ${
+          className={`hidden lg:block lg:col-span-9 rounded-xl border p-5 sticky top-4 shadow-sm min-h-[calc(100vh-140px)] ${
             darkMode
               ? "border-gray-800 bg-gray-900 text-gray-100"
               : "border-gray-200 bg-white text-gray-900"
@@ -1314,12 +1273,9 @@ const CandiateJobs = () => {
         </div>
       </div>
 
-      {/* ==================================================
-          MOBILE MODAL
-          ================================================== */}
+      {/* Mobile Modal */}
       {isModalOpen && selectedJob && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 lg:hidden">
-
           <div
             className={`w-full max-h-[90vh] sm:max-w-xl rounded-t-2xl sm:rounded-2xl border shadow-xl flex flex-col overflow-hidden ${
               darkMode
