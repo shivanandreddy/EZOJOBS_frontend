@@ -2,6 +2,7 @@ import { useOutletContext } from "react-router-dom";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
+
 import {
   Bookmark,
   ThumbsDown,
@@ -48,7 +49,7 @@ const CandiateJobs = () => {
 
   const [showFilters, setShowFilters] = useState(false);
 
-  const jobsPerPage = 5;
+  const jobsPerPage = 6;
   const candiateId = candiate?._id;
 
   // --------------------------------------------------
@@ -307,7 +308,6 @@ const CandiateJobs = () => {
         );
       }
 
-      // Default: newest
       return (
         new Date(b.createdAt || 0) -
         new Date(a.createdAt || 0)
@@ -606,8 +606,7 @@ const CandiateJobs = () => {
           <p
             className={`text-xs sm:text-sm mt-0.5 font-medium ${textSecondary}`}
           >
-            {getSafeText(job.company, "Company Name")}{" "}
-            &bull;{" "}
+            {getSafeText(job.company, "Company Name")} &bull;{" "}
             {getSafeText(job.location, "Location")}
           </p>
 
@@ -643,8 +642,7 @@ const CandiateJobs = () => {
               <span
                 className={`px-2 py-1 rounded-md ${badgeClass}`}
               >
-                Experience:{" "}
-                {getSafeText(job.experience)}
+                Experience: {getSafeText(job.experience)}
               </span>
             )}
           </div>
@@ -823,6 +821,7 @@ const CandiateJobs = () => {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-2 sm:px-4 pb-12">
+
       {/* Header */}
       <div className="mb-4">
         <p
@@ -837,232 +836,241 @@ const CandiateJobs = () => {
         </p>
       </div>
 
-     {/* Search + Filter Bar */}
-{/* Search + Filter Bar */}
-<div className="mb-4">
-  {/* Search + Filters + Sort - ONE ROW */}
-  <div className="flex items-center gap-2 w-full">
-    {/* Search */}
-    <div className="relative w-[45%] sm:flex-1 min-w-0">
-      <Search
-        size={16}
-        className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-          darkMode
-            ? "text-gray-500"
-            : "text-gray-400"
-        }`}
-      />
+      {/* Search + Filter Bar */}
+      <div className="mb-4">
 
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={(e) =>
-          setSearchTerm(e.target.value)
-        }
-        placeholder="Search jobs, company..."
-        className={`w-full pl-9 pr-8 py-2.5 rounded-lg border text-sm outline-none transition ${
-          darkMode
-            ? "bg-gray-800 border-gray-700 text-gray-100 placeholder-gray-500 focus:border-blue-500"
-            : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500"
-        }`}
-      />
+        {/* Search + Filters + Sort */}
+        <div className="flex items-center gap-2 w-full">
 
-      {searchTerm && (
-        <button
-          onClick={() => setSearchTerm("")}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-        >
-          <X size={14} />
-        </button>
-      )}
-    </div>
+          {/* Search */}
+          <div className="relative w-[45%] sm:flex-1 min-w-0">
+            <Search
+              size={16}
+              className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                darkMode
+                  ? "text-gray-500"
+                  : "text-gray-400"
+              }`}
+            />
 
-    {/* Filters */}
-    <button
-      onClick={() => setShowFilters(!showFilters)}
-      className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-lg border text-xs sm:text-sm font-medium transition ${
-        showFilters
-          ? "bg-blue-600 text-white border-blue-600"
-          : darkMode
-          ? "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-750"
-          : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
-      }`}
-    >
-      <SlidersHorizontal size={15} />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) =>
+                setSearchTerm(e.target.value)
+              }
+              placeholder="Search jobs, company..."
+              className={`w-full pl-9 pr-8 py-2.5 rounded-lg border text-sm outline-none transition ${
+                darkMode
+                  ? "bg-gray-800 border-gray-700 text-gray-100 placeholder-gray-500 focus:border-blue-500"
+                  : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500"
+              }`}
+            />
 
-      <span>Filters</span>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
 
-      {[
-        jobTypeFilter !== "all",
-        locationFilter !== "all",
-        experienceFilter !== "all",
-      ].filter(Boolean).length > 0 && (
-        <span
-          className={`min-w-[17px] h-[17px] px-1 rounded-full flex items-center justify-center text-[9px] font-bold ${
-            showFilters
-              ? "bg-white text-blue-600"
-              : "bg-blue-600 text-white"
-          }`}
-        >
-          {
-            [
+          {/* Filters */}
+          <button
+            onClick={() =>
+              setShowFilters(!showFilters)
+            }
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-lg border text-xs sm:text-sm font-medium transition ${
+              showFilters
+                ? "bg-blue-600 text-white border-blue-600"
+                : darkMode
+                ? "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-750"
+                : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <SlidersHorizontal size={15} />
+
+            <span>Filters</span>
+
+            {[
               jobTypeFilter !== "all",
               locationFilter !== "all",
               experienceFilter !== "all",
-            ].filter(Boolean).length
-          }
-        </span>
-      )}
-    </button>
-
-    {/* Sort */}
-    <div className="relative shrink-0">
-      <ArrowUpDown
-        size={14}
-        className={`absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${
-          darkMode
-            ? "text-gray-500"
-            : "text-gray-400"
-        }`}
-      />
-
-      <select
-        value={sortBy}
-        onChange={(e) =>
-          setSortBy(e.target.value)
-        }
-        className={`appearance-none pl-8 pr-7 py-2.5 rounded-lg border text-xs sm:text-sm outline-none cursor-pointer ${
-          darkMode
-            ? "bg-gray-800 border-gray-700 text-gray-200"
-            : "bg-gray-50 border-gray-200 text-gray-700"
-        }`}
-      >
-        <option value="newest">Newest</option>
-        <option value="oldest">Oldest</option>
-        <option value="title">A-Z</option>
-      </select>
-    </div>
-  </div>
-
-  {/* Filter Options - SECOND ROW */}
-  {showFilters && (
-    <div className="mt-2 w-full overflow-hidden">
-      <div
-        className={`flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide ${
-          darkMode
-            ? "text-gray-200"
-            : "text-gray-700"
-        }`}
-      >
-        {/* All Types */}
-        <select
-          value={jobTypeFilter}
-          onChange={(e) =>
-            setJobTypeFilter(e.target.value)
-          }
-          className={`shrink-0 w-[145px] px-3 py-2.5 rounded-lg border text-xs sm:text-sm outline-none ${
-            darkMode
-              ? "bg-gray-800 border-gray-700 text-gray-200"
-              : "bg-gray-50 border-gray-200 text-gray-700"
-          }`}
-        >
-          <option value="all">
-            All Types
-          </option>
-
-          {jobTypes.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-
-        {/* All Locations */}
-        <select
-          value={locationFilter}
-          onChange={(e) =>
-            setLocationFilter(e.target.value)
-          }
-          className={`shrink-0 w-[155px] px-3 py-2.5 rounded-lg border text-xs sm:text-sm outline-none ${
-            darkMode
-              ? "bg-gray-800 border-gray-700 text-gray-200"
-              : "bg-gray-50 border-gray-200 text-gray-700"
-          }`}
-        >
-          <option value="all">
-            All Locations
-          </option>
-
-          {locations.map((location) => (
-            <option
-              key={location}
-              value={location}
-            >
-              {location}
-            </option>
-          ))}
-        </select>
-
-        {/* All Experience */}
-        <select
-          value={experienceFilter}
-          onChange={(e) =>
-            setExperienceFilter(e.target.value)
-          }
-          className={`shrink-0 w-[155px] px-3 py-2.5 rounded-lg border text-xs sm:text-sm outline-none ${
-            darkMode
-              ? "bg-gray-800 border-gray-700 text-gray-200"
-              : "bg-gray-50 border-gray-200 text-gray-700"
-          }`}
-        >
-          <option value="all">
-            All Experience
-          </option>
-
-          {experiences.map((experience) => (
-            <option
-              key={experience}
-              value={experience}
-            >
-              {experience}
-            </option>
-          ))}
-        </select>
-
-        {/* Clear */}
-        {hasActiveFilters && (
-          <button
-            onClick={clearFilters}
-            className="shrink-0 px-3 py-2.5 rounded-lg border border-red-200 text-red-600 dark:border-red-900 dark:text-red-400 text-xs font-medium"
-          >
-            Clear
+            ].filter(Boolean).length > 0 && (
+              <span
+                className={`min-w-[17px] h-[17px] px-1 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                  showFilters
+                    ? "bg-white text-blue-600"
+                    : "bg-blue-600 text-white"
+                }`}
+              >
+                {
+                  [
+                    jobTypeFilter !== "all",
+                    locationFilter !== "all",
+                    experienceFilter !== "all",
+                  ].filter(Boolean).length
+                }
+              </span>
+            )}
           </button>
+
+          {/* Sort */}
+          <div className="relative shrink-0">
+            <ArrowUpDown
+              size={14}
+              className={`absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${
+                darkMode
+                  ? "text-gray-500"
+                  : "text-gray-400"
+              }`}
+            />
+
+            <select
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(e.target.value)
+              }
+              className={`appearance-none pl-8 pr-7 py-2.5 rounded-lg border text-xs sm:text-sm outline-none cursor-pointer ${
+                darkMode
+                  ? "bg-gray-800 border-gray-700 text-gray-200"
+                  : "bg-gray-50 border-gray-200 text-gray-700"
+              }`}
+            >
+              <option value="newest">
+                Newest
+              </option>
+
+              <option value="oldest">
+                Oldest
+              </option>
+
+              <option value="title">
+                A-Z
+              </option>
+            </select>
+          </div>
+        </div>
+
+        {/* Filter Options */}
+        {showFilters && (
+          <div className="mt-2 w-full overflow-hidden">
+            <div
+              className={`flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide ${
+                darkMode
+                  ? "text-gray-200"
+                  : "text-gray-700"
+              }`}
+            >
+              {/* All Types */}
+              <select
+                value={jobTypeFilter}
+                onChange={(e) =>
+                  setJobTypeFilter(e.target.value)
+                }
+                className={`shrink-0 w-[145px] px-3 py-2.5 rounded-lg border text-xs sm:text-sm outline-none ${
+                  darkMode
+                    ? "bg-gray-800 border-gray-700 text-gray-200"
+                    : "bg-gray-50 border-gray-200 text-gray-700"
+                }`}
+              >
+                <option value="all">
+                  All Types
+                </option>
+
+                {jobTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+
+              {/* All Locations */}
+              <select
+                value={locationFilter}
+                onChange={(e) =>
+                  setLocationFilter(e.target.value)
+                }
+                className={`shrink-0 w-[155px] px-3 py-2.5 rounded-lg border text-xs sm:text-sm outline-none ${
+                  darkMode
+                    ? "bg-gray-800 border-gray-700 text-gray-200"
+                    : "bg-gray-50 border-gray-200 text-gray-700"
+                }`}
+              >
+                <option value="all">
+                  All Locations
+                </option>
+
+                {locations.map((location) => (
+                  <option
+                    key={location}
+                    value={location}
+                  >
+                    {location}
+                  </option>
+                ))}
+              </select>
+
+              {/* All Experience */}
+              <select
+                value={experienceFilter}
+                onChange={(e) =>
+                  setExperienceFilter(e.target.value)
+                }
+                className={`shrink-0 w-[155px] px-3 py-2.5 rounded-lg border text-xs sm:text-sm outline-none ${
+                  darkMode
+                    ? "bg-gray-800 border-gray-700 text-gray-200"
+                    : "bg-gray-50 border-gray-200 text-gray-700"
+                }`}
+              >
+                <option value="all">
+                  All Experience
+                </option>
+
+                {experiences.map((experience) => (
+                  <option
+                    key={experience}
+                    value={experience}
+                  >
+                    {experience}
+                  </option>
+                ))}
+              </select>
+
+              {/* Clear */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="shrink-0 px-3 py-2.5 rounded-lg border border-red-200 text-red-600 dark:border-red-900 dark:text-red-400 text-xs font-medium"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
         )}
+
+        {/* Results Count */}
+        <div
+          className={`mt-2 text-xs ${
+            darkMode
+              ? "text-gray-500"
+              : "text-gray-500"
+          }`}
+        >
+          Showing{" "}
+          <span className="font-semibold">
+            {filteredJobs.length}
+          </span>{" "}
+          of{" "}
+          <span className="font-semibold">
+            {jobs.length}
+          </span>{" "}
+          jobs
+        </div>
       </div>
-    </div>
-  )}
-
-  {/* Results Count */}
-  <div
-    className={`mt-2 text-xs ${
-      darkMode
-        ? "text-gray-500"
-        : "text-gray-500"
-    }`}
-  >
-    Showing{" "}
-    <span className="font-semibold">
-      {filteredJobs.length}
-    </span>{" "}
-    of{" "}
-    <span className="font-semibold">
-      {jobs.length}
-    </span>{" "}
-    jobs
-  </div>
-</div>
-
-
 
       {/* Error */}
       {error && (
@@ -1090,9 +1098,17 @@ const CandiateJobs = () => {
         Jobs for you
       </h2>
 
+      {/* ==================================================
+          MAIN JOB GRID
+          ================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        {/* Job List */}
-        <div className=" lg:col-span-3  col-span5 flex  justify-between space-y-2">
+
+        {/* ==================================================
+            JOB LIST + PAGINATION
+            ================================================== */}
+        <div className="lg:col-span-3 col-span-5 flex flex-col space-y-3">
+
+          {/* Job List */}
           <div className="space-y-2">
             {currentJobs.length > 0 ? (
               currentJobs.map((job) => {
@@ -1124,7 +1140,6 @@ const CandiateJobs = () => {
                   >
                     <div className="flex items-start justify-between">
                       <div className="min-w-0 flex-1">
-                       
 
                         <h3
                           className={`font-semibold text-xs sm:text-sm truncate ${
@@ -1201,8 +1216,6 @@ const CandiateJobs = () => {
                           )}
                         </div>
                       </div>
-
-                      
                     </div>
                   </div>
                 );
@@ -1240,10 +1253,12 @@ const CandiateJobs = () => {
             )}
           </div>
 
-          {/* Pagination */}
+          {/* ==================================================
+              PAGINATION - ALWAYS BELOW JOB LIST
+              ================================================== */}
           {totalPages > 1 && (
             <div
-              className={`flex items-center justify-between px-2 py-1.5 rounded-lg border text-xs ${
+              className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg border text-xs ${
                 darkMode
                   ? "border-gray-800 bg-gray-900 text-gray-300"
                   : "border-gray-200 bg-white text-gray-700"
@@ -1251,9 +1266,7 @@ const CandiateJobs = () => {
             >
               <button
                 onClick={() =>
-                  handlePageChange(
-                    currentPage - 1
-                  )
+                  handlePageChange(currentPage - 1)
                 }
                 disabled={currentPage === 1}
                 className={`p-1 rounded flex items-center font-medium transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${
@@ -1271,9 +1284,7 @@ const CandiateJobs = () => {
 
               <button
                 onClick={() =>
-                  handlePageChange(
-                    currentPage + 1
-                  )
+                  handlePageChange(currentPage + 1)
                 }
                 disabled={
                   currentPage === totalPages
@@ -1290,7 +1301,9 @@ const CandiateJobs = () => {
           )}
         </div>
 
-        {/* Desktop Details */}
+        {/* ==================================================
+            DESKTOP JOB DETAILS
+            ================================================== */}
         <div
           className={`hidden lg:block lg:col-span-7 rounded-xl border p-5 sticky top-4 shadow-sm ${
             darkMode
@@ -1309,9 +1322,12 @@ const CandiateJobs = () => {
         </div>
       </div>
 
-      {/* Mobile Modal */}
+      {/* ==================================================
+          MOBILE MODAL
+          ================================================== */}
       {isModalOpen && selectedJob && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 lg:hidden">
+
           <div
             className={`w-full max-h-[90vh] sm:max-w-xl rounded-t-2xl sm:rounded-2xl border shadow-xl flex flex-col overflow-hidden ${
               darkMode
