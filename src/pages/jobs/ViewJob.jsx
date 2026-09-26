@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import {candiateAppliedJobStatus} from "../../enums.js";
 import {
   Briefcase,
   MapPin,
@@ -20,9 +21,12 @@ import {
   Building,
   Sparkles,
 } from "lucide-react";
+import { useUser } from "../../context/UserContext";
 
 const ViewJob = ({ onBack }) => {
   const { id } = useParams();
+  const { user,token } = useUser();
+  console.log(token,user)
 
   let navigate;
   try {
@@ -40,6 +44,7 @@ const ViewJob = ({ onBack }) => {
       window.history.back();
     }
   };
+const [updatingStatus, setUpdatingStatus] = useState(null);
 const [showApplicantsModal, setShowApplicantsModal] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     return (
@@ -71,7 +76,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
   const [applyError, setApplyError] = useState("");
   const [applySuccess, setApplySuccess] = useState("");
 
-  const token = localStorage.getItem("token");
+
   const userStr = localStorage.getItem("user");
 
   let userRole = "";
@@ -170,6 +175,58 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
 
     setTimeout(() => setCopied(false), 2500);
   };
+
+ const handleApplicantStatusChange = async (applicationId, newStatus) => {
+  if (!applicationId || !newStatus) return;
+
+  try {
+    setUpdatingStatus(applicationId);
+
+    
+
+    if (!token) {
+      navigate("/ezohr/login");
+      return;
+    }
+
+    const response = await axios.patch(
+      `${import.meta.env.VITE_API_URL}/jobs/${id}/candiates/${applicationId}/status`,
+      {
+        status: newStatus,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data?.success) {
+      setJob((prev) => ({
+        ...prev,
+        candiatesApplied: prev.candiatesApplied.map((application) =>
+          application._id === applicationId
+            ? {
+                ...application,
+                status: newStatus,
+              }
+            : application
+        ),
+      }));
+    
+    }
+  } catch (error) {
+    console.error("Status update error:", error);
+
+    alert(
+      error.response?.data?.message ||
+        "Failed to update candidate status."
+    );
+  } finally {
+    setUpdatingStatus(null);
+  }
+};
 
   if (loading) {
     return (
@@ -684,26 +741,35 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
         </div>
       )}
 
-      {showApplicantsModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+   {/* Applicants Modal */}
+{showApplicantsModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
     <div
       className="
-        w-full max-w-4xl max-h-[90vh] overflow-hidden
-        rounded-2xl shadow-2xl
+        w-full max-w-6xl max-h-[90vh]
+        overflow-hidden
+        rounded-xl
         bg-white dark:bg-gray-900
+        shadow-2xl
         border border-gray-200 dark:border-gray-700
       "
     >
       {/* Modal Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div
+        className="
+          flex items-center justify-between 
+          px-6 py-4
+          border-b border-gray-200 dark:border-gray-700 bg-blue-500 dark:bg-gray-800
+        "
+      >
         <div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            Job Applicants
+          <h2 className="text-xl font-semibold text-white dark:text-white">
+            Applicants
           </h2>
 
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {job.candiatesApplied?.length ?? 0} applicant
-            {(job.candiatesApplied?.length ?? 0) !== 1 ? "s" : ""}
+          <p className="text-sm text-white dark:text-white mt-1">
+            {job?.candiatesApplied?.length || 0} candidate
+            {job?.candiatesApplied?.length === 1 ? "" : "s"} applied
           </p>
         </div>
 
@@ -711,63 +777,57 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
           onClick={() => setShowApplicantsModal(false)}
           className="
             p-2 rounded-lg
-            text-gray-500 hover:text-gray-700
-            dark:text-gray-400 dark:hover:text-white
-            hover:bg-gray-100 dark:hover:bg-gray-800
-            transition
+            text-white hover:text-black
+            hover:bg-gray-100
+            dark:text-white
+            dark:hover:text-white
+            dark:hover:bg-gray-800
           "
         >
           <X size={22} />
         </button>
       </div>
 
-      {/* Applicants */}
-      <div className="p-6 overflow-y-auto max-h-[75vh]">
-        {!job.candiatesApplied ||
-        job.candiatesApplied.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Users
-              size={48}
-              className="text-gray-400 mb-4"
-            />
-
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              No Applicants
-            </h3>
-
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              No candidates have applied for this job yet.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
+      {/* Modal Body */}
+      <div className="overflow-y-auto max-h-[calc(90vh-80px)] px-6">
+        {job?.candiatesApplied?.length > 0 ? (
+          <div className="space-y-8">
             {job.candiatesApplied.map((application, index) => {
-              const candidate = application.candiateId;
+              const candidate = application?.candiateId;
 
               return (
                 <div
-                  key={application._id || candidate?._id || index}
+                  key={
+                    application?._id ||
+                    candidate?._id ||
+                    index
+                  }
                   className="
-                    p-5 rounded-xl
-                    border border-gray-200 dark:border-gray-700
-                    bg-gray-50 dark:bg-gray-800/60
+                    py-6
+                    border-b border-gray-200
+                    dark:border-gray-700
+                    last:border-b-0
                   "
                 >
                   {/* Candidate Header */}
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      {/* Avatar */}
                       <div
                         className="
-                          w-12 h-12 rounded-full
+                          w-12 h-12
+                          rounded-full
                           flex items-center justify-center
-                          bg-blue-100 dark:bg-blue-900/40
-                          text-blue-600 dark:text-blue-400
+                          bg-blue-100
+                          dark:bg-blue-900/40
+                          text-blue-600
+                          dark:text-blue-400
                           font-bold text-lg
                         "
                       >
                         {candidate?.name
-                          ? candidate.name.charAt(0).toUpperCase()
+                          ? candidate.name
+                              .charAt(0)
+                              .toUpperCase()
                           : "C"}
                       </div>
 
@@ -777,85 +837,329 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
                         </h3>
 
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {candidate?.email || "Email not available"}
+                          {candidate?.email ||
+                            "Email not available"}
                         </p>
                       </div>
                     </div>
 
-                    {/* Status */}
+                    {/* Application Status */}
                     <span
                       className="
-                        px-3 py-1 rounded-full
+                        inline-flex
+                        w-fit
+                        px-3 py-1
+                        rounded-full
                         text-xs font-semibold
-                        bg-blue-100 text-blue-700
-                        dark:bg-blue-900/40 dark:text-blue-400
+                        bg-blue-100
+                        text-blue-700
+                        dark:bg-blue-900/40
+                        dark:text-blue-400
                       "
                     >
-                      {application.status || "Applied"}
+                      {application?.status || "Applied"}
                     </span>
                   </div>
 
-                  {/* Candidate Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
-                    {/* Experience */}
-                    <div className="p-3 rounded-lg bg-white dark:bg-gray-900">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        Experience
-                      </p>
+                 {/* Candidate Information - 2 Columns */}
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
 
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {candidate?.experience || "Not provided"}
-                      </p>
-                    </div>
+  {/* LEFT COLUMN */}
+  <div>
+    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+      Candidate Information
+    </h4>
 
-                    {/* Email */}
-                    <div className="p-3 rounded-lg bg-white dark:bg-gray-900">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        Email
-                      </p>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
 
-                      <p className="font-medium text-gray-900 dark:text-white break-all">
-                        {candidate?.email || "Not provided"}
-                      </p>
-                    </div>
-                  </div>
+      {/* Email */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Email
+        </p>
+        <p className="mt-1 font-medium text-gray-900 dark:text-white break-all">
+          {candidate?.email || "N/A"}
+        </p>
+      </div>
 
-                  {/* Skills */}
-                  <div className="mt-4">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                      Skills
-                    </p>
+      {/* Mobile */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Mobile
+        </p>
+        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+          {candidate?.mobile || "N/A"}
+        </p>
+      </div>
 
-                    {candidate?.skills?.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {candidate.skills.map((skill, skillIndex) => (
-                          <span
-                            key={skillIndex}
-                            className="
-                              px-3 py-1 rounded-full
-                              text-sm
-                              bg-blue-100 text-blue-700
-                              dark:bg-blue-900/40 dark:text-blue-300
-                            "
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        No skills provided
-                      </p>
-                    )}
-                  </div>
+      {/* Experience */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Experience
+        </p>
+        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+          {candidate?.experience ?? "N/A"}
+        </p>
+      </div>
 
+      {/* Age */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Age
+        </p>
+        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+          {candidate?.age ?? "N/A"}
+        </p>
+      </div>
+
+      {/* Gender */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Gender
+        </p>
+        <p className="mt-1 font-medium text-gray-900 dark:text-white capitalize">
+          {candidate?.gender || "N/A"}
+        </p>
+      </div>
+
+      {/* Location */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Location
+        </p>
+        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+          {candidate?.location || "N/A"}
+        </p>
+      </div>
+
+      {/* Current Salary */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Current Salary
+        </p>
+        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+          {candidate?.currentSalary ?? "N/A"}
+        </p>
+      </div>
+
+      {/* Expected Salary */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Expected Salary
+        </p>
+        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+          {candidate?.expectedSalary ?? "N/A"}
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+
+  {/* RIGHT COLUMN */}
+  <div>
+
+    <div className="flex items-center gap-2">
+  <label className="text-xs text-gray-500 dark:text-gray-400">
+    Status
+  </label>
+
+  <select
+    value={application?.status || ""}
+    disabled={updatingStatus === application?._id}
+    onChange={(e) =>
+      handleApplicantStatusChange(
+        application._id,
+        e.target.value
+      )
+    }
+    className="
+      px-3 py-2
+      rounded-lg
+      border border-gray-300
+      dark:border-gray-600
+      bg-white dark:bg-gray-800
+      text-sm font-medium
+      text-gray-900 dark:text-white
+      focus:outline-none
+      focus:ring-2 focus:ring-blue-500
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+    "
+  >
+    <option value="" disabled>
+      Select Status
+    </option>
+
+    {candiateAppliedJobStatus.map((status, index) => (
+      <option key={index} value={status}>
+        {status}
+      </option>
+    ))}
+  </select>
+
+  {updatingStatus === application?._id && (
+    <Loader2
+      size={16}
+      className="animate-spin text-blue-600"
+    />
+  )}
+</div>
+
+    {/* Skills */}
+    <div>
+      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+        Skills
+      </h4>
+
+      {candidate?.skills?.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {candidate.skills.map((skill, skillIndex) => (
+            <span
+              key={skillIndex}
+              className="
+                px-3 py-1
+                rounded-full
+                text-sm
+                bg-blue-100
+                text-blue-700
+                dark:bg-blue-900/40
+                dark:text-blue-300
+              "
+            >
+              {skill}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          No skills provided
+        </p>
+      )}
+    </div>
+
+
+    {/* Education */}
+    <div className="mt-8">
+      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+        Education
+      </h4>
+
+      <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+
+        <table className="w-full text-xs">
+
+          <thead>
+            <tr className="bg-blue-500 dark:bg-gray-800">
+
+              <th className="px-3 py-3 text-left font-semibold text-white">
+                Education
+              </th>
+
+              <th className="px-3 py-3 text-left font-semibold text-white">
+                Institution
+              </th>
+
+              <th className="px-3 py-3 text-left font-semibold text-white">
+                Branch / Degree
+              </th>
+
+              <th className="px-3 py-3 text-left font-semibold text-white">
+                Year
+              </th>
+
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+
+            {/* School */}
+            <tr>
+              <td className="px-3 py-3 font-medium text-gray-900 dark:text-white">
+                School
+              </td>
+
+              <td className="px-3 py-3 text-gray-700 dark:text-gray-300">
+                {candidate?.school?.schoolName || "N/A"}
+              </td>
+
+              <td className="px-3 py-3 text-gray-700 dark:text-gray-300">
+                -
+              </td>
+
+              <td className="px-3 py-3 text-gray-700 dark:text-gray-300">
+                {candidate?.school?.completedYear || "N/A"}
+              </td>
+            </tr>
+
+
+            {/* Intermediate */}
+            <tr>
+              <td className="px-3 py-3 font-medium text-gray-900 dark:text-white">
+                Intermediate
+              </td>
+
+              <td className="px-3 py-3 text-gray-700 dark:text-gray-300">
+                {candidate?.inter?.collegeName || "N/A"}
+              </td>
+
+              <td className="px-3 py-3 text-gray-700 dark:text-gray-300">
+                {candidate?.inter?.branch || "N/A"}
+              </td>
+
+              <td className="px-3 py-3 text-gray-700 dark:text-gray-300">
+                {candidate?.inter?.startedYear &&
+                candidate?.inter?.endedYear
+                  ? `${candidate.inter.startedYear} - ${candidate.inter.endedYear}`
+                  : "N/A"}
+              </td>
+            </tr>
+
+
+            {/* Graduation */}
+            <tr>
+              <td className="px-3 py-3 font-medium text-gray-900 dark:text-white">
+                Graduation
+              </td>
+
+              <td className="px-3 py-3 text-gray-700 dark:text-gray-300">
+                {candidate?.graduation?.organisationName || "N/A"}
+              </td>
+
+              <td className="px-3 py-3 text-gray-700 dark:text-gray-300">
+                {[
+                  candidate?.graduation?.type,
+                  candidate?.graduation?.branch,
+                ]
+                  .filter(Boolean)
+                  .join(" / ") || "N/A"}
+              </td>
+
+              <td className="px-3 py-3 text-gray-700 dark:text-gray-300">
+                {candidate?.graduation?.startedYear &&
+                candidate?.graduation?.endedYear
+                  ? `${candidate.graduation.startedYear} - ${candidate.graduation.endedYear}`
+                  : "N/A"}
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
                   {/* Candidate ID */}
-                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="mt-7 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       Candidate ID
                     </p>
 
-                    <p className="text-xs font-mono text-gray-700 dark:text-gray-300 mt-1 break-all">
+                    <p className="mt-1 text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
                       {candidate?._id || "N/A"}
                     </p>
                   </div>
@@ -863,23 +1167,18 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
               );
             })}
           </div>
-        )}
-      </div>
+        ) : (
+          <div className="py-16 text-center">
+            <Users
+              size={40}
+              className="mx-auto text-gray-400 mb-3"
+            />
 
-      {/* Modal Footer */}
-      <div className="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-        <button
-          onClick={() => setShowApplicantsModal(false)}
-          className="
-            px-5 py-2 rounded-lg
-            bg-gray-200 hover:bg-gray-300
-            dark:bg-gray-700 dark:hover:bg-gray-600
-            text-gray-800 dark:text-white
-            font-medium transition
-          "
-        >
-          Close
-        </button>
+            <p className="text-gray-500 dark:text-gray-400">
+              No applicants found.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   </div>

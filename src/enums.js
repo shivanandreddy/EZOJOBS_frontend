@@ -1,6 +1,6 @@
 export const candiateGender = ["male", "female", "other"];
 export const candiateRole = ["student", "employee"];
-export const candiateEducationLevel = ["school", "intermediate", "graduation","masters","others"];
+export const candiateEducationLevel = ["school", "intermediate", "graduation"];
 export const candiateGraduation = [
   "B.Tech",
   "M.Tech",
@@ -16,7 +16,7 @@ export const candiateGraduation = [
   "ME",
   "Other",
 ];
-export const userRoles = ["admin", "hr", "user"];
+export const userRoles = ["admin", "hr", "user", "interviewer"];
 export const candiateAppliedJobStatus = [
   "Applied",
   "Under Review",
@@ -26,6 +26,6 @@ export const candiateAppliedJobStatus = [
   "Rejected",
   "Withdrawn",
 ];
-export const userCompanies = ["Google", "Facebook", "Twitter", "LinkedIn"];
+export const userCompanies = ["Ezo_jobs","Google", "Facebook", "Twitter", "LinkedIn"];
 export const jobStatus = ["Active", "Closed", "Deleted", "Draft", "Archived"];
 export const jobType = ["Full-time", "Part-time", "Contract", "Internship"];

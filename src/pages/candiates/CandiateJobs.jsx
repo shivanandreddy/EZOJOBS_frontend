@@ -147,6 +147,25 @@ const CandiateJobs = () => {
     });
   };
 
+  const getCandidateApplication = (job) => {
+  if (!job || !candiateId || !Array.isArray(job.candiatesApplied)) {
+    return null;
+  }
+
+  return (
+    job.candiatesApplied.find((application) => {
+      const appliedCandidateId =
+        typeof application?.candiateId === "object"
+          ? application?.candiateId?._id
+          : application?.candiateId;
+
+      return (
+        appliedCandidateId &&
+        String(appliedCandidateId) === String(candiateId)
+      );
+    }) || null
+  );
+};
   // --------------------------------------------------
   // Fetch Jobs
   // --------------------------------------------------
@@ -541,6 +560,11 @@ const CandiateJobs = () => {
     const applicantCount = getApplicantCount(job);
     const alreadyApplied = hasCandidateApplied(job);
 
+    const candidateApplication = getCandidateApplication(job);
+
+const applicationStatus =
+  candidateApplication?.status || "Not Applied";
+
     const responsibilities =
       normalizeArray(job.responsibilities)
         .map(formatArrayItem)
@@ -678,6 +702,29 @@ const CandiateJobs = () => {
                 "Apply now"
               )}
             </button>
+              {alreadyApplied && (
+  <span
+    className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[10px] sm:text-xs font-semibold ${
+      applicationStatus === "Selected"
+        ? darkMode
+          ? "bg-emerald-950/50 text-emerald-400"
+          : "bg-emerald-50 text-emerald-700"
+        : applicationStatus === "Rejected"
+        ? darkMode
+          ? "bg-red-950/50 text-red-400"
+          : "bg-red-50 text-red-700"
+        : applicationStatus === "Interview"
+        ? darkMode
+          ? "bg-purple-950/50 text-purple-400"
+          : "bg-purple-50 text-purple-700"
+        : darkMode
+        ? "bg-blue-950/50 text-blue-400"
+        : "bg-blue-50 text-blue-700"
+    }`}
+  >
+    Status: {applicationStatus}
+  </span>
+)}
 
             {[Bookmark, ThumbsDown, Share2].map(
               (Icon, index) => (
@@ -1153,7 +1200,7 @@ const CandiateJobs = () => {
                           
 
                           {alreadyApplied && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 text-[9px] font-semibold">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500 text-black dark:bg-emerald-950/50 dark:text-emerald-400 text-[9px] font-semibold">
                               <Check size={10} />
                               Applied
                             </span>
