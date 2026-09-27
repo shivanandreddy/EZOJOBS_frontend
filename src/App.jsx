@@ -27,6 +27,7 @@ import CandiateApplications from "./pages/candiates/CandiateApplications";
 import Profile from "./components/Profile";
 import ScheduleInterview from "./pages/interviews/ScheduleInterview";
 import AssginedInterviews from "./pages/interviews/AssginedInterviews";
+import UpdateOverallInterview from "./pages/interviews/UpdateOverallInterview";
 
 import Settings from "./pages/settings/Settings";
 import Help from "./pages/help/Help";
@@ -74,6 +75,7 @@ export default function App() {
               {/* Interview */}
               <Route path="interview" element={<ScheduleInterview />} />
               <Route path="interviews/manage" element={<AssginedInterviews />} />
+              <Route path="interviews/overall/update" element={<UpdateOverallInterview />} />
 
               {/* Test */}
               <Route path="test" element={<Test />} />

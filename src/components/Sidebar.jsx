@@ -201,16 +201,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
                 {/* Candidate Profile */}
                 <Link
-                  to="/ezohr/interviewer/candidate-profile"
+                  to="interviews/overall/update"
                   onClick={handleLinkClick}
                   className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    isActive('/ezohr/interviewer/candidate-profile')
+                    isActive('interviews/overall/update')
                       ? 'text-blue-600 dark:text-blue-400 font-semibold'
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
                   
-                  Referral
+                  Update Overall Interview
                 </Link>
 
                 {/* Job Details */}
