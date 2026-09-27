@@ -121,18 +121,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  Create Job
-                </Link>
-                <Link
-                  to="/ezohr/jobs/drafts"
-                  onClick={handleLinkClick}
-                  className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    isActive('/ezohr/jobs/drafts')
-                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
-                  }`}
-                >
-                  Draft Jobs
+                  Add Job Opening
                 </Link>
                 <Link
                   to="/ezohr/jobs/manage"
@@ -143,8 +132,20 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
-                  Manage Jobs
+                  Manage Openings
                 </Link>
+                <Link
+                  to="/ezohr/jobs/drafts"
+                  onClick={handleLinkClick}
+                  className={`flex w-full items-center rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                    isActive('/ezohr/jobs/drafts')
+                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                      : 'text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Unpublished Jobs
+                </Link>
+                
                 <Link
                   to="/ezohr/interview"
                   onClick={handleLinkClick}
@@ -209,11 +210,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   }`}
                 >
                   
-                  View Candidate Profile
+                  Referral
                 </Link>
 
                 {/* Job Details */}
-                <Link
+                {/* <Link
                   to="/ezohr/interviewer/job-details"
                   onClick={handleLinkClick}
                   className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
@@ -224,10 +225,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 >
                   
                   View Job Details
-                </Link>
+                </Link> */}
 
                 {/* Submit Feedback */}
-                <Link
+                {/* <Link
                   to="/ezohr/interviewer/feedback"
                   onClick={handleLinkClick}
                   className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
@@ -238,10 +239,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 >
                   
                   Submit Feedback
-                </Link>
+                </Link> */}
 
                 {/* Recommendation */}
-                <Link
+                {/* <Link
                   to="/ezohr/interviewer/recommendation"
                   onClick={handleLinkClick}
                   className={`flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition ${
@@ -252,7 +253,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 >
                   
                   Give Recommendation
-                </Link>
+                </Link> * */}
               </div>
             )}
           </div>

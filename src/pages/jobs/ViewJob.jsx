@@ -305,39 +305,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
               Share
             </button>
 
-            {userRole === "employer" || userRole === "admin" ? (
-              <button className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition cursor-pointer">
-                <Edit size={16} />
-                Edit Job
-              </button>
-            ) : (
-              <button
-                onClick={handleApply}
-                disabled={isApplying || hasApplied}
-                className={`flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold text-white transition ${
-                  hasApplied
-                    ? "bg-emerald-600 cursor-default"
-                    : "bg-blue-600 hover:bg-blue-500 cursor-pointer"
-                }`}
-              >
-                {isApplying ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    Applying...
-                  </>
-                ) : hasApplied ? (
-                  <>
-                    <Check size={16} />
-                    Applied Successfully
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={16} />
-                    Apply Now
-                  </>
-                )}
-              </button>
-            )}
+           
           </div>
         </div>
 
@@ -437,10 +405,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
               Posted Date
             </p>
             <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
-              {job.postedDate ||
-                (job.createdAt
-                  ? new Date(job.createdAt).toLocaleDateString()
-                  : "N/A")}
+                  {new Date(job.createdAt).toLocaleDateString("en-GB")}
             </p>
           </div>
 
@@ -449,7 +414,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
               Deadline
             </p>
             <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
-              {job.deadline || "N/A"}
+            {new Date(job.deadline).toLocaleDateString("en-GB") || "N/A"}
             </p>
           </div>
         </div>
@@ -832,7 +797,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
                       </div>
 
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        <h3 className="text-md font-semibold text-gray-900 dark:text-white">
                           {candidate?.name || "Candidate"}
                         </h3>
 
@@ -866,7 +831,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
 
   {/* LEFT COLUMN */}
   <div>
-    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+    <h4 className="text-sm font-semibold text-blue-500 dark:text-green-500 mb-4 underline">
       Candidate Information
     </h4>
 
@@ -874,10 +839,10 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
 
       {/* Email */}
       <div>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-xs text-gray-500 dark:text-gray-400 ">
           Email
         </p>
-        <p className="mt-1 font-medium text-gray-900 dark:text-white break-all">
+        <p className="mt-1 text-xs text-gray-900 dark:text-white break-all font-medium">
           {candidate?.email || "N/A"}
         </p>
       </div>
@@ -887,7 +852,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Mobile
         </p>
-        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+        <p className="mt-1 text-xs text-gray-900 dark:text-white font-medium">
           {candidate?.mobile || "N/A"}
         </p>
       </div>
@@ -897,7 +862,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Experience
         </p>
-        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+        <p className="mt-1 text-xs text-gray-900 dark:text-white font-medium">
           {candidate?.experience ?? "N/A"}
         </p>
       </div>
@@ -907,7 +872,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Age
         </p>
-        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+        <p className="mt-1 text-xs text-gray-900 dark:text-white font-medium">
           {candidate?.age ?? "N/A"}
         </p>
       </div>
@@ -917,7 +882,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Gender
         </p>
-        <p className="mt-1 font-medium text-gray-900 dark:text-white capitalize">
+        <p className="mt-1  text-xs text-gray-900 dark:text-white capitalize font-medium">
           {candidate?.gender || "N/A"}
         </p>
       </div>
@@ -927,7 +892,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Location
         </p>
-        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+        <p className="mt-1  text-xs font-medium text-gray-900 dark:text-white font-medium">
           {candidate?.location || "N/A"}
         </p>
       </div>
@@ -937,7 +902,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Current Salary
         </p>
-        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+        <p className="mt-1 text-xs text-gray-900 dark:text-white font-medium">
           {candidate?.currentSalary ?? "N/A"}
         </p>
       </div>
@@ -947,7 +912,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Expected Salary
         </p>
-        <p className="mt-1 font-medium text-gray-900 dark:text-white">
+        <p className="mt-1  text-xs text-gray-900 dark:text-white font-medium"> 
           {candidate?.expectedSalary ?? "N/A"}
         </p>
       </div>
@@ -960,9 +925,9 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
   <div>
 
     <div className="flex items-center gap-2">
-  <label className="text-xs text-gray-500 dark:text-gray-400">
+  <p className="text-xs text-gray-500 dark:text-gray-400">
     Status
-  </label>
+  </p>
 
   <select
     value={application?.status || ""}
@@ -1008,9 +973,9 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
 
     {/* Skills */}
     <div>
-      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+      <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 mb-2">
         Skills
-      </h4>
+      </p>
 
       {candidate?.skills?.length > 0 ? (
         <div className="flex flex-wrap gap-2">
@@ -1020,11 +985,12 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
               className="
                 px-3 py-1
                 rounded-full
-                text-sm
-                bg-blue-100
-                text-blue-700
-                dark:bg-blue-900/40
-                dark:text-blue-300
+                text-xs
+                bg-green-500
+                text-black
+                dark:bg-green-600
+                dark:text-black
+                font-medium
               "
             >
               {skill}
@@ -1041,9 +1007,9 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
 
     {/* Education */}
     <div className="mt-8">
-      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+       <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 mb-2">
         Education
-      </h4>
+      </p>
 
       <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
 
@@ -1153,16 +1119,7 @@ const [showApplicantsModal, setShowApplicantsModal] = useState(false);
   </div>
 
 </div>
-                  {/* Candidate ID */}
-                  <div className="mt-7 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Candidate ID
-                    </p>
-
-                    <p className="mt-1 text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
-                      {candidate?._id || "N/A"}
-                    </p>
-                  </div>
+                 
                 </div>
               );
             })}

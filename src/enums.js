@@ -19,7 +19,6 @@ export const candiateGraduation = [
 export const userRoles = ["admin", "hr", "user", "interviewer"];
 export const candiateAppliedJobStatus = [
   "Applied",
-  "Under Review",
   "Shortlisted",
   "Interviewing",
   "Offered",

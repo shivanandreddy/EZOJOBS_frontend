@@ -1,19 +1,70 @@
-
+import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useUser } from "../context/UserContext";
 import Spinner from "./Spinner";
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+const ProtectedRoute = ({ children }) => {
   const location = useLocation();
 
-  const {
-    isAuthenticated,
-    user,
-    loading,
-  } = useUser();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
 
-  // Wait for UserContext to initialize
-  if (loading) {
+  useEffect(() => {
+    const checkToken = () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setIsAuthenticated(false);
+        setChecking(false);
+        return;
+      }
+
+      try {
+        // JWT structure: header.payload.signature
+        const payload = JSON.parse(atob(token.split(".")[1]));
+
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        // JWT `exp` is in seconds
+        if (payload.exp && payload.exp <= currentTime) {
+          console.log("Token expired");
+
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+
+          setIsAuthenticated(false);
+          setChecking(false);
+          return;
+        }
+
+        setIsAuthenticated(true);
+        setChecking(false);
+
+      } catch (error) {
+        console.error("Invalid token:", error);
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setIsAuthenticated(false);
+        setChecking(false);
+      }
+    };
+
+    // Check immediately
+    checkToken();
+
+    // Check every second
+    const timer = setInterval(() => {
+      checkToken();
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  // Prevent page from rendering while checking token
+  if (checking) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner />
@@ -21,7 +72,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     );
   }
 
-  // No authentication
   if (!isAuthenticated) {
     return (
       <Navigate
@@ -30,15 +80,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         state={{ from: location }}
       />
     );
-  }
-
-  // Role authorization
-  if (allowedRoles && allowedRoles.length > 0) {
-    const hasRequiredRole = allowedRoles.includes(user?.role);
-
-    if (!hasRequiredRole) {
-      return <Navigate to="/" replace />;
-    }
   }
 
   return children;

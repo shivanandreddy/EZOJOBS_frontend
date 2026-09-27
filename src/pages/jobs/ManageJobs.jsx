@@ -259,7 +259,7 @@ const ManageJobs = ({ onCreateJobClick, onViewJobClick }) => {
               return (
                 <div
                   key={jobIdParam}
-                  className="flex flex-col justify-between rounded-lg border border-slate-200 dark:border-slate-800/80 bg-blue-50/50 dark:bg-[#080d1a] p-6 hover:border-slate-300 dark:hover:border-slate-700/80 shadow-sm transition space-y-5"
+                  className="flex flex-col justify-between rounded-lg shadow-lg border border-slate-200 dark:border-slate-800/80 bg-blue-50/50  dark:bg-[#080d1a] p-6 hover:border-slate-300 dark:hover:border-slate-700/80 shadow-sm transition space-y-5"
                 >
                   {/* Header & Badges */}
                   <div className="space-y-3">
@@ -338,7 +338,7 @@ const ManageJobs = ({ onCreateJobClick, onViewJobClick }) => {
                     <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                       <div className="flex items-center gap-1">
                         <Calendar size={13} className="text-slate-400 dark:text-slate-500" />
-                        <span>Deadline: {job.deadline}</span>
+                        <span>Deadline: {job.deadline ? job.deadline.split('T')[0] : 'N/A'}</span>
                       </div>
                       
                     </div>
